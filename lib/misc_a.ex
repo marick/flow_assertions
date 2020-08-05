@@ -114,11 +114,17 @@ defmodule FlowAssertions.MiscA do
 
   # ----------------------------------------------------------------------------
   @doc """
-  The chaining version of `assert x == y`, for cases where you're adding
-  onto a pipeline of assertions or content-extraction checks (like `ok_content/1`). 
+  The chaining version of `assert x === y`.
+
+  This is useful for cases where you're adding onto a pipeline of
+  assertions or content-extraction checks (like `ok_content/1`).
+
   ```
   value_to_check |> ok_content |> assert_equal(3)
   ```
+
+  Note that the comparison is done with `===`, so `1` is not equal to
+  `1.0`. 
   """
   defchain assert_equal(x, y), do: assert x == y
 

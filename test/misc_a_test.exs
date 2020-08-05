@@ -57,17 +57,25 @@ defmodule FlowAssertions.MiscATest do
     end)
   end
 
-  test "assert_equal" do
-    assert "value" == assert_equal("value", "value")
-    assert "value" == assert_equals("value", "value")
-
-    assert_raise(ExUnit.AssertionError, fn ->
-      assert_equal(1, 2)
-    end)
+  describe "assert_equal" do 
+    test "basics" do
+      assert "value" == assert_equal("value", "value")
+      assert "value" == assert_equals("value", "value")
+      
+      assert_raise(ExUnit.AssertionError, fn ->
+        assert_equal(1, 2)
+      end)
+      
+      assert_raise(ExUnit.AssertionError, fn ->
+        assert_equals(1, 2)
+      end)
+    end
     
-    assert_raise(ExUnit.AssertionError, fn ->
-      assert_equals(1, 2)
-    end)
+    test "uses `===`" do
+      assert_raise(ExUnit.AssertionError, fn ->
+        assert_equal(1, 1.0)
+      end)
+    end
   end
 
   # ----------------------------------------------------------------------------
