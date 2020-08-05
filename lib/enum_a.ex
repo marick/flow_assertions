@@ -13,8 +13,8 @@ defmodule FlowAssertions.EnumA do
   ```
   """
 
-  defchain assert_singleton(value_to_check),
-    do: singleton_or_flunk(value_to_check)
+  defchain assert_singleton(enum),
+    do: singleton_or_flunk(enum)
 
   
   @doc """
@@ -25,16 +25,16 @@ defmodule FlowAssertions.EnumA do
   [ ]     |> singleton_content   # fails
   %{a: 1} |> singleton_content   # the tuple {:a, 1}
   """
-  def singleton_content(value_to_check),
-    do: singleton_or_flunk(value_to_check)
-
+  def singleton_content(enum),
+    do: singleton_or_flunk(enum)
+  
   # ----------------------------------------------------------------------------
-  defp singleton_or_flunk(value_to_check) do 
-    case Enum.into(value_to_check, []) do
+  defp singleton_or_flunk(enum) do 
+    case Enum.into(enum, []) do
       [x] -> x
       _ -> flunk """
            Expected a single element:
-           #{inspect value_to_check}
+           #{inspect enum}
            """
     end
   end

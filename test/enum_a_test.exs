@@ -1,7 +1,6 @@
 defmodule FlowAssertions.EnumATest do
   use ExUnit.Case, async: true
-  import FlowAssertions.EnumA
-  import FlowAssertions.AssertionA
+  use FlowAssertions
 
   describe "assert_singleton" do 
     test "typical use: lists" do

@@ -1,5 +1,7 @@
 defmodule FlowAssertions.MapATest do
   use ExUnit.Case, async: true
+  use FlowAssertions
+
 #  import FlowAssertions.{Map, Assertion}
 
   # defstruct name: nil # Used for typo testing
