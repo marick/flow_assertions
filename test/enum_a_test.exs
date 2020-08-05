@@ -2,6 +2,10 @@ defmodule FlowAssertions.EnumATest do
   use ExUnit.Case, async: true
   use FlowAssertions
 
+  @moduledoc """
+  Assertions for values that satisfy the `Enum` protocol.
+  """
+
   describe "assert_singleton" do 
     test "typical use: lists" do
       assert assert_singleton([1]) == [1]

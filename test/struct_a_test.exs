@@ -17,7 +17,6 @@ defmodule FlowAssertions.StructATest do
     assertion_fails_with_diagnostic(
       ["Expected a `Date` but got `5`"],
       fn -> assert_struct_named(5, Date) end)
-    
   end
 end
   
