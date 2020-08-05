@@ -142,16 +142,16 @@ defmodule FlowAssertions.Misc do
   match a structure:
 
   ```
-  make_user("fred") |> assert(%{name: "fred"})
+  make_user("fred") |> assert_shape(%{name: "fred"})
   ```
 
   Or you can pin a value: 
 
   ```
-  make_user("fred") |> assert(%{name: ^chosen_name})
+  make_user("fred") |> assert_shape(%{name: ^chosen_name})
   ```
 
-  See also `assert_struct_named/2`. 
+  See also `FlowAssertions.Struct.assert_struct_named/2`. 
   """
   defmacro assert_shape(value_to_check, shape) do 
     pattern_string = Macro.to_string(shape)
@@ -165,13 +165,6 @@ defmodule FlowAssertions.Misc do
         """)
       eval_once
     end
-  end
-
-  defchain assert_struct_named(value_to_check, module_name)
-  when is_struct(value_to_check) do
-    actual_name = value_to_check.__struct__
-    assert actual_name == module_name,
-      "Expected a `#{inspect module_name}` but got a `#{inspect actual_name}`"
   end
 
   # def singleton_payload(value_to_check) do
