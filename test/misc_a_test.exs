@@ -12,13 +12,13 @@ defmodule FlowAssertions.MiscATest do
     end)
   end
 
-  test "ok_payload" do
-    assert "payload" == ok_payload({:ok, "payload"})
+  test "ok_content" do
+    assert "content" == ok_content({:ok, "content"})
     assert_raise(ExUnit.AssertionError, fn ->
-      ok_payload(:ok)
+      ok_content(:ok)
     end)
     assert_raise(ExUnit.AssertionError, fn ->
-      ok_payload({:error, "payload"})
+      ok_content({:error, "content"})
     end)
   end
 
@@ -30,31 +30,31 @@ defmodule FlowAssertions.MiscATest do
     end)
   end
 
-  test "error_payload" do
-    assert "payload" == error_payload({:error, "payload"})
+  test "error_content" do
+    assert "content" == error_content({:error, "content"})
     assert_raise(ExUnit.AssertionError, fn ->
-      error_payload(:error)
+      error_content(:error)
     end)
     assert_raise(ExUnit.AssertionError, fn ->
-      error_payload({:ok, "payload"})
+      error_content({:ok, "content"})
     end)
   end
 
-  test "error2_payload" do
-    assert "payload" == error2_payload({:error, :right, "payload"}, :right)
+  test "error2_content" do
+    assert "content" == error2_content({:error, :right, "content"}, :right)
     
     assert_raise(ExUnit.AssertionError, fn ->
-      error2_payload({:error, "payload"}, :ignored)
+      error2_content({:error, "content"}, :ignored)
     end)
     assert_raise(ExUnit.AssertionError, fn ->
-      error2_payload({:error, :wrong, "payload"}, :right)
+      error2_content({:error, :wrong, "content"}, :right)
     end)
 
     assert_raise(ExUnit.AssertionError, fn ->
-      error2_payload(:error, :ignored)
+      error2_content(:error, :ignored)
     end)
     assert_raise(ExUnit.AssertionError, fn ->
-      error2_payload({:ok, "payload"}, :ignored)
+      error2_content({:ok, "content"}, :ignored)
     end)
   end
 

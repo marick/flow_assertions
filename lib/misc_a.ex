@@ -10,7 +10,7 @@ defmodule FlowAssertions.MiscA do
   value_to_check |> assert_ok({:ok, "any value is accepted"})
   ```
 
-  See also `ok_payload/1`, which takes an `:ok` tuple and returns the
+  See also `ok_content/1`, which takes an `:ok` tuple and returns the
   second element.
   """
   
@@ -21,21 +21,21 @@ defmodule FlowAssertions.MiscA do
 
   @doc """
   Fails with an `AssertionError` unless the argument is of the form
-  `{:ok, payload}`. Returns the `payload` value.
+  `{:ok, content}`. Returns the `content` value.
 
-  `ok_payload` is used to
-  let the rest of an assertion chain operate on the `payload`:
+  `ok_content` is used to
+  let the rest of an assertion chain operate on the `content`:
 
   ```
   |> ReservationApi.create(ready, @institution)
-  |> ok_payload
+  |> ok_content
   |> assert_field(count: 5)
   ```
   See also `assert_ok/1`.
   """
-  def ok_payload(tuple) do
-    assert {:ok, payload} = tuple
-    payload
+  def ok_content(tuple) do
+    assert {:ok, content} = tuple
+    content
   end
 
   @doc """
@@ -46,7 +46,7 @@ defmodule FlowAssertions.MiscA do
   value_to_check |> assert_error({:error, "any value is accepted"})
   ```
 
-  See also `error_payload/1`, which takes an `:error` tuple and returns the
+  See also `error_content/1`, which takes an `:error` tuple and returns the
   second element.
   """
   def assert_error(:error), do: :error
@@ -56,21 +56,21 @@ defmodule FlowAssertions.MiscA do
 
   @doc """
   Fails with an `AssertionError` unless the argument is of the form
-  `{:error, payload}`. Returns the `payload` value.
+  `{:error, content}`. Returns the `content` value.
 
-  `error_payload` is used to
-  let the rest of an assertion chain operate on the `payload`:
+  `error_content` is used to
+  let the rest of an assertion chain operate on the `content`:
 
   ```
   |> ReservationApi.create(ready, @institution)
-  |> error_payload
+  |> error_content
   |> assert_equals("some error message")
   ```
   See also `assert_error/1`.
   """
-  def error_payload(tuple) do
-    assert {:error, payload} = tuple
-    payload
+  def error_content(tuple) do
+    assert {:error, content} = tuple
+    content
   end
 
 
@@ -84,11 +84,11 @@ defmodule FlowAssertions.MiscA do
 
   Note that the third element of the tuple is ignored.
 
-  See also `error2_payload/2`, which takes such a tuple and returns the
+  See also `error2_content/2`, which takes such a tuple and returns the
   third element.
   """
   def assert_error2(value_to_check, second) do
-    assert {:error, ^second, payload} = value_to_check
+    assert {:error, ^second, content} = value_to_check
   end
 
   @doc """
@@ -96,28 +96,28 @@ defmodule FlowAssertions.MiscA do
   element `:error` and the second a
   required subcategory of error. Returns the third element. 
 
-  `error_payload` is used to
-  let the rest of an assertion chain operate on the `payload`:
+  `error_content` is used to
+  let the rest of an assertion chain operate on the `content`:
 
   ```
   |> ReservationApi.create(ready, @institution)
-  |> error2_payload(:constraint)
+  |> error2_content(:constraint)
   |> assert_equals("some error message")
   ```
   See also `assert_error2/2`.
   """
-  def error2_payload(value_to_check, second) do
+  def error2_content(value_to_check, second) do
     assert_error2(value_to_check, second)
-    assert {:error, ^second, payload} = value_to_check
-    payload
+    assert {:error, ^second, content} = value_to_check
+    content
   end
 
   # ----------------------------------------------------------------------------
   @doc """
   The chaining version of `assert x == y`, for cases where you're adding
-  onto a pipeline of assertions or payload-extraction checks (like `ok_payload/1`). 
+  onto a pipeline of assertions or content-extraction checks (like `ok_content/1`). 
   ```
-  value_to_check |> ok_payload |> assert_equal(3)
+  value_to_check |> ok_content |> assert_equal(3)
   ```
   """
   defchain assert_equal(x, y), do: assert x == y
@@ -167,13 +167,13 @@ defmodule FlowAssertions.MiscA do
     end
   end
 
-  # def singleton_payload(value_to_check) do
+  # def singleton_content(value_to_check) do
   #   assert_shape(value_to_check, [_only])
   #   List.first(value_to_check)
   # end
 
   # def ok_id(x) do
-  #   ok_payload(x).id
+  #   ok_content(x).id
   # end
 
   # defchain assert_empty(value_to_check) do
@@ -185,13 +185,13 @@ defmodule FlowAssertions.MiscA do
 
   # def with_singleton(%Changeset{} = changeset, fetch_how, field) do
   #   apply(ChangesetX, fetch_how, [changeset, field])
-  #   |> singleton_payload
+  #   |> singleton_content
   # end
 
   # def with_singleton(container, field) do
   #   container
   #   |> Map.get(field)
-  #   |> singleton_payload
+  #   |> singleton_content
   # end
 
   # def sorted_by_id(container, field) do
