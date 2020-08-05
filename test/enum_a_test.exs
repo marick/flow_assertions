@@ -52,7 +52,19 @@ defmodule FlowAssertions.EnumATest do
         ["Expected a single element"],
         fn -> singleton_content(%{a: 1, b: 2}) end)
     end
-  end 
-  
+  end
+
+  test "assert_empty" do
+    assert assert_empty([]) == []
+    assert assert_empty(%{}) == %{}
+    
+    assertion_fails_with_diagnostic(
+      ["Expected an empty Enum"],
+      fn -> assert_empty([1]) end)
+    
+    assertion_fails_with_diagnostic(
+      ["Expected an empty Enum"],
+      fn -> assert_empty(%{a: 2}) end)
+    end
 end
   

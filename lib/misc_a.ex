@@ -167,17 +167,8 @@ defmodule FlowAssertions.MiscA do
     end
   end
 
-  # def singleton_content(value_to_check) do
-  #   assert_shape(value_to_check, [_only])
-  #   List.first(value_to_check)
-  # end
-
   # def ok_id(x) do
   #   ok_content(x).id
-  # end
-
-  # defchain assert_empty(value_to_check) do
-  #   assert Enum.empty?(value_to_check)
   # end
 
 
@@ -185,12 +176,6 @@ defmodule FlowAssertions.MiscA do
 
   # def with_singleton(%Changeset{} = changeset, fetch_how, field) do
   #   apply(ChangesetX, fetch_how, [changeset, field])
-  #   |> singleton_content
-  # end
-
-  # def with_singleton(container, field) do
-  #   container
-  #   |> Map.get(field)
   #   |> singleton_content
   # end
 

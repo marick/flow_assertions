@@ -3,7 +3,7 @@ defmodule FlowAssertions.EnumA do
   import ExUnit.Assertions
 
   @doc """
-  Assert that any Enum has only a single element.
+  Assert that an Enum has only a single element.
   ```
   [1] |> assert_singleton   # passes
   [ ] |> assert_singleton   # fails
@@ -27,6 +27,20 @@ defmodule FlowAssertions.EnumA do
   """
   def singleton_content(enum),
     do: singleton_or_flunk(enum)
+
+  @doc """
+  Assert that an Enum has no elements."
+  ```
+  [] |> assert_empty    # true
+  %{} |> assert_empty   # true
+  ```
+  """
+  defchain assert_empty(value_to_check) do
+    if not Enum.empty?(value_to_check),
+      do: flunk("Expected an empty Enum")
+  end
+
+  
   
   # ----------------------------------------------------------------------------
   defp singleton_or_flunk(enum) do 
