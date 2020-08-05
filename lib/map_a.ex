@@ -1,4 +1,4 @@
-defmodule FlowAssertions.Map do
+defmodule FlowAssertions.MapA do
   # import FlowAssertions.Defchain
   # import ExUnit.Assertions
   # import FlowAssertions.Misc

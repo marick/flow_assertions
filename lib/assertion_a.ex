@@ -1,4 +1,4 @@
-defmodule FlowAssertions.Assertion do
+defmodule FlowAssertions.AssertionA do
 
   # Assertions about the behavior of assertions, whee.
   

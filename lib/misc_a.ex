@@ -1,4 +1,4 @@
-defmodule FlowAssertions.Misc do
+defmodule FlowAssertions.MiscA do
   import FlowAssertions.Defchain
   import ExUnit.Assertions
 
@@ -151,7 +151,7 @@ defmodule FlowAssertions.Misc do
   make_user("fred") |> assert_shape(%{name: ^chosen_name})
   ```
 
-  See also `FlowAssertions.Struct.assert_struct_named/2`. 
+  See also `FlowAssertions.StructA.assert_struct_named/2`. 
   """
   defmacro assert_shape(value_to_check, shape) do 
     pattern_string = Macro.to_string(shape)

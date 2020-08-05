@@ -1,7 +1,7 @@
-defmodule FlowAssertions.MiscTest do
+defmodule FlowAssertions.MiscATest do
   use ExUnit.Case, async: true
-  import FlowAssertions.Misc
-  import FlowAssertions.Assertion
+  import FlowAssertions.MiscA
+  import FlowAssertions.AssertionA
 
   test "assert_ok" do
     :ok = assert_ok(:ok)

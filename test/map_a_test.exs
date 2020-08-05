@@ -1,4 +1,4 @@
-defmodule FlowAssertions.MapTest do
+defmodule FlowAssertions.MapATest do
   use ExUnit.Case, async: true
 #  import FlowAssertions.{Map, Assertion}
 

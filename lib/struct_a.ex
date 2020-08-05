@@ -1,4 +1,4 @@
-defmodule FlowAssertions.Struct do
+defmodule FlowAssertions.StructA do
   import FlowAssertions.Defchain
   import ExUnit.Assertions
   
@@ -11,7 +11,7 @@ defmodule FlowAssertions.Struct do
   ```
 
   For structs, this has the same purpose as
-  `FlowAssertions.Misc.assert_shape/2`. However, because
+  `FlowAssertions.MiscA.assert_shape/2`. However, because
   it's not a macro, the second argument can be a variable. That makes it useful
   for building up larger assertion functions.
   
