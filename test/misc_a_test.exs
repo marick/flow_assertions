@@ -128,7 +128,97 @@ defmodule FlowAssertions.MiscATest do
   # This prevents impossible matches from being flagged at compile time.
   defp no_op(list), do: list
 
+  describe "being good enough" do
+    test "good_enough? as a predicate" do
+      assert good_enough?(1, &(&1 == 1))
+      refute good_enough?(2, &(&1 == 1))
+    end
 
+    test "the predicate can return truthy/falsey values" do
+      assert good_enough?(1, fn _ -> 5 end)
+      refute good_enough?(1, fn _ -> nil end)
+    end
+
+    test "but two functions are still compared" do
+      a = &Map.from_struct/1
+      b = &Map.from_struct/1
+      assert good_enough?(a, b)
+    end
+    
+    test "fallback to ==" do
+      assert good_enough?(1.0, 1)
+      refute good_enough?(1, 2)
+    end
+
+    test "comparing a string to a regular expression" do
+      assert good_enough?("string", ~r/s.r..g/)
+      assert good_enough?("string", ~r/s.r/)
+      refute good_enough?("string", ~r/s.t/)
+    end
+
+    test "other comparisons to regular expressions" do
+      refute good_enough?(~r/s.r..g/, "string")
+      assert good_enough?(~r/s.r/, ~r/s.r/)
+    end
+  end
+
+  describe "assert_good_enough" do
+    test "success cases" do
+      assert assert_good_enough(1, &(&1 == 1)) == 1
+      assert assert_good_enough(1.0, 1) == 1.0
+      assert assert_good_enough("string", ~r/s.r..g/) == "string"
+      assert assert_good_enough("string", ~r/s.r/) == "string"
+    end
+
+    test "failing predicate has its own kind of output" do
+      assertion_fails_with_diagnostic(
+        "[1] fails predicate",
+        fn -> assert_good_enough([1], &is_map/1) end)
+    end
+
+    test "... unless both arguments are predicates" do
+      exception = assert_raise(ExUnit.AssertionError, fn ->
+        assert_good_enough(&Map.take/2, &Map.drop/2)
+      end)
+
+      assert exception.message =~ "Assertion with == failed"
+      assert exception.left == &Map.take/2
+      assert exception.right == &Map.drop/2
+    end
+
+    test "failing regex has usual equality output" do
+      exception = assert_raise(ExUnit.AssertionError, fn ->
+        assert_good_enough("string", ~r/sr/)
+      end)
+
+      assert exception.message =~ "Assertion with == failed"
+      assert exception.left == "string"
+      assert exception.right == ~r/sr/
+    end
+
+
+    test "... even if both sides are regexps" do
+      exception = assert_raise(ExUnit.AssertionError, fn ->
+        assert_good_enough(~r/DIFF/, ~r/sr/)
+      end)
+
+      assert exception.message =~ "Assertion with == failed"
+      assert exception.left == ~r/DIFF/
+      assert exception.right == ~r/sr/
+    end
+
+
+    test "fallback has usual equality output" do
+      exception = assert_raise(ExUnit.AssertionError, fn ->
+        assert_good_enough(4, 5)
+      end)
+
+      assert exception.message =~ "Assertion with == failed"
+      assert exception.left == 4
+      assert exception.right == 5
+    end
+  end
+  
 
   
 

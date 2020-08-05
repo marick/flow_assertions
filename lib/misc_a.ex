@@ -126,12 +126,72 @@ defmodule FlowAssertions.MiscA do
   Note that the comparison is done with `===`, so `1` is not equal to
   `1.0`. 
   """
-  defchain assert_equal(x, y), do: assert x == y
+  defchain assert_equal(x, y), do: assert x === y
 
   @doc """
   Synonym for `assert_equal`.
   """
-  defchain assert_equals(x, y), do: assert x == y
+  defchain assert_equals(x, y), do: assert x === y
+
+  
+  @doc """
+  Think of it as a form of equality with special handling for functions and regular expressions.
+
+  ```
+  good_enough?(1, &odd/1)             # true
+  good_enough?("string", ~r/s.r..g/)  # true
+  ```
+
+  If the second argument is a regular expression and the first is a string, the two
+  are compared with `=~`. 
+
+  If *both* arguments are regular expressions, their `source` fields are compared.
+
+  If the second argument is a function and the first is not, the function
+  is applied to the first argument. `good_enough?` returns true iff the
+  result is truthy. 
+
+  Otherwise, the two are compared with `==`. 
+
+  See also `assert_good_enough/2`
+  """
+  def good_enough?(value_to_check, predicate) when is_function(predicate) do
+    if is_function(value_to_check) do
+      value_to_check == predicate
+    else
+      !! predicate.(value_to_check)
+    end
+  end
+
+  def good_enough?(%Regex{} = value_to_check, %Regex{} = needed),
+    do: value_to_check.source == needed.source
+
+  def good_enough?(value_to_check, %Regex{} = needed) when is_binary(value_to_check),
+    do: value_to_check =~ needed
+
+  def good_enough?(value_to_check, needed),
+    do: value_to_check == needed
+
+
+  defchain assert_good_enough(value_to_check, predicate)
+  when is_function(predicate) do
+    cond do
+      is_function(value_to_check) ->
+        assert value_to_check == predicate
+      not predicate.(value_to_check) ->
+        flunk "#{inspect value_to_check} fails predicate #{inspect predicate}"
+      true ->
+        :ignore
+    end
+  end
+
+  defchain assert_good_enough(value_to_check, needed) do
+    if not good_enough?(value_to_check, needed) do
+      assert value_to_check == needed
+    end
+  end
+      
+  
 
   
   # ----------------------------------------------------------------------------
