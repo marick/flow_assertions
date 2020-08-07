@@ -1,60 +1,64 @@
 defmodule FlowAssertions.MiscATest do
   use ExUnit.Case, async: true
   use FlowAssertions
+  alias FlowAssertions.Messages
 
   test "assert_ok" do
-    :ok = assert_ok(:ok)
-    {:ok, :not_examined} = assert_ok({:ok, :not_examined})
+    assert assert_ok(:ok) == :ok
+    assert assert_ok({:ok, :not_examined}) == {:ok, :not_examined}
 
-    assert_raise(ExUnit.AssertionError, fn ->
-      assert_ok(:error)
-    end)
+    (&assert_ok &1)
+    |> assertion_fails_for(:error, Messages.not_ok)
   end
 
+
   test "ok_content" do
-    assert "content" == ok_content({:ok, "content"})
-    assert_raise(ExUnit.AssertionError, fn ->
-      ok_content(:ok)
-    end)
-    assert_raise(ExUnit.AssertionError, fn ->
-      ok_content({:error, "content"})
-    end)
+    assert ok_content({:ok, "content"}) == "content"
+    msg = Messages.not_ok_tuple
+
+    (&ok_content/1)
+    |> assertion_fails_for(:ok, msg)
+    |> assertion_fails_for({:error, "content"}, msg)
   end
 
   test "assert_error" do
-    :error = assert_error(:error)
-    {:error, :not_examined} = assert_error({:error, :not_examined})
-    assert_raise(ExUnit.AssertionError, fn ->
-      assert_error({:ok, 5})
-    end)
+    assert assert_error(:error) == :error
+    assert assert_error({:error, :not_examined}) == {:error, :not_examined}
+
+    (&assert_error/1)
+    |> assertion_fails_for({:ok, 5}, Messages.not_error)
   end
 
   test "error_content" do
-    assert "content" == error_content({:error, "content"})
-    assert_raise(ExUnit.AssertionError, fn ->
-      error_content(:error)
-    end)
-    assert_raise(ExUnit.AssertionError, fn ->
-      error_content({:ok, "content"})
-    end)
+    assert error_content({:error, "content"}) == "content"
+
+    msg = Messages.not_error_tuple
+    (&error_content/1)
+    |> assertion_fails_for(:error, msg)
+    |> assertion_fails_for({:ok, "content"}, msg)
+  end
+
+  test "assert_error_2" do
+    valid = {:error, :expected_error_type, "content"}
+    assert assert_error2(valid, :expected_error_type) == valid
+
+    bad_form_msg = Messages.not_error_3tuple(:expected_error_type)
+
+    (&(assert_error2(&1, :expected_error_type)))
+    |> assertion_fails_for(:error, bad_form_msg)
+    |> assertion_fails_for({:error, "content"}, bad_form_msg)
+    |> assertion_fails_for("anything else", bad_form_msg)
+
+    |> assertion_fails_for({:error, :bad_subtype, "content"},
+         Messages.bad_error_3tuple_subtype(:bad_subtype, :expected_error_type))
   end
 
   test "error2_content" do
-    assert "content" == error2_content({:error, :right, "content"}, :right)
-    
-    assert_raise(ExUnit.AssertionError, fn ->
-      error2_content({:error, "content"}, :ignored)
-    end)
-    assert_raise(ExUnit.AssertionError, fn ->
-      error2_content({:error, :wrong, "content"}, :right)
-    end)
+    assert error2_content({:error, :right, "content"}, :right) == "content"
 
-    assert_raise(ExUnit.AssertionError, fn ->
-      error2_content(:error, :ignored)
-    end)
-    assert_raise(ExUnit.AssertionError, fn ->
-      error2_content({:ok, "content"}, :ignored)
-    end)
+    (&(error2_content(&1, :expected_error_type)))
+    |> assertion_fails_for({:error, :bad_subtype, "content"},
+         Messages.bad_error_3tuple_subtype(:bad_subtype, :expected_error_type))
   end
 
   describe "assert_equal" do 
@@ -170,6 +174,7 @@ defmodule FlowAssertions.MiscATest do
       assert assert_good_enough("string", ~r/s.r/) == "string"
     end
 
+    @tag :skip
     test "failing predicate has its own kind of output" do
       assertion_fails_with_diagnostic(
         "[1] fails predicate",
