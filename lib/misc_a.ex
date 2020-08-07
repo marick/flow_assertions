@@ -167,22 +167,15 @@ defmodule FlowAssertions.MiscA do
 
   See also `assert_good_enough/2`
   """
-  def good_enough?(value_to_check, predicate) when is_function(predicate) do
-    if is_function(value_to_check) do
-      value_to_check == predicate
-    else
-      !! predicate.(value_to_check)
+  def good_enough?(actual, expected) do 
+    try do
+      assert_good_enough(actual, expected)
+      true
+    rescue
+      ExUnit.AssertionError -> false
     end
   end
 
-  def good_enough?(%Regex{} = value_to_check, %Regex{} = needed),
-    do: value_to_check.source == needed.source
-
-  def good_enough?(value_to_check, %Regex{} = needed) when is_binary(value_to_check),
-    do: value_to_check =~ needed
-
-  def good_enough?(value_to_check, needed),
-    do: value_to_check == needed
 
 
   defchain assert_good_enough(value_to_check, predicate)
@@ -205,14 +198,12 @@ defmodule FlowAssertions.MiscA do
   end
 
   defchain assert_good_enough(value_to_check, needed) do
-    if not good_enough?(value_to_check, needed) do
-      assert value_to_check == needed
-    end
+    assert value_to_check == needed
   end
   
   defp assert_predicate(predicate, value_to_check) do
     predicate_value = predicate.(value_to_check)
-    if not predicate_value do
+    if !predicate_value do
       elaborate_flunk Messages.failed_predicate(predicate), left: value_to_check
     end
   end
