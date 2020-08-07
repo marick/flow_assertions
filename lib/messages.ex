@@ -8,4 +8,8 @@ defmodule FlowAssertions.Messages do
     do: "Value is not of the form `{:error, #{inspect error_subtype}, <content>}`"
   def bad_error_3tuple_subtype(actual, expected),
     do: "The error subtype is `#{inspect actual}`, not the expected `#{inspect expected}`"
+  def failed_predicate(predicate), do: "Predicate #{inspect predicate} failed"
+  def no_regex_match, do: "Regular expression didn't match"
+
+  def stock_equality, do: "Assertion with == failed"
 end

@@ -98,6 +98,9 @@ defmodule FlowAssertions.MiscATest do
       |> assert_shape(%__MODULE__{a: 3})
       |> assert_shape(%__MODULE__{a: ^pinned_value})
 
+      # Change these to assertion_fails when that is using the
+      # true `assert_fields`.
+      
       assertion_fails_with_diagnostic(
         ["The value doesn't match the given pattern"],
         fn -> 
@@ -174,53 +177,43 @@ defmodule FlowAssertions.MiscATest do
       assert assert_good_enough("string", ~r/s.r/) == "string"
     end
 
-    @tag :skip
+    def foo(1, 2), do: false
+
     test "failing predicate has its own kind of output" do
-      assertion_fails_with_diagnostic(
-        "[1] fails predicate",
-        fn -> assert_good_enough([1], &is_map/1) end)
+      (fn arg -> assert_good_enough(arg, &is_map/1) end)
+      |> assertion_fails_for([1], Messages.failed_predicate(&is_map/1))
     end
 
     test "... unless both arguments are predicates" do
-      exception = assert_raise(ExUnit.AssertionError, fn ->
-        assert_good_enough(&Map.take/2, &Map.drop/2)
-      end)
-
-      assert exception.message =~ "Assertion with == failed"
-      assert exception.left == &Map.take/2
-      assert exception.right == &Map.drop/2
+      assertion_fails("Assertion with == failed",
+        [left: &Map.take/2, right: &Map.drop/2], 
+        fn -> 
+          assert_good_enough(&Map.take/2, &Map.drop/2)
+        end)
     end
 
     test "failing regex has usual equality output" do
-      exception = assert_raise(ExUnit.AssertionError, fn ->
-        assert_good_enough("string", ~r/sr/)
-      end)
-
-      assert exception.message =~ "Assertion with == failed"
-      assert exception.left == "string"
-      assert exception.right == ~r/sr/
+      assertion_fails(Messages.no_regex_match,
+        [left: "string", right: ~r/sr/],
+        fn -> 
+          assert_good_enough("string", ~r/sr/)
+        end)
     end
-
 
     test "... even if both sides are regexps" do
-      exception = assert_raise(ExUnit.AssertionError, fn ->
-        assert_good_enough(~r/DIFF/, ~r/sr/)
-      end)
-
-      assert exception.message =~ "Assertion with == failed"
-      assert exception.left == ~r/DIFF/
-      assert exception.right == ~r/sr/
+      assertion_fails(Messages.stock_equality,
+        [left: ~r/DIFF/, right: ~r/sr/], 
+        fn -> 
+          assert_good_enough(~r/DIFF/, ~r/sr/)
+        end)
     end
 
-
     test "fallback has usual equality output" do
-      exception = assert_raise(ExUnit.AssertionError, fn ->
-        assert_good_enough(4, 5)
-      end)
-
-      assert exception.message =~ "Assertion with == failed"
-      assert exception.left == 4
-      assert exception.right == 5
+      assertion_fails(Messages.stock_equality,
+        [left: 4, right: 5],
+        fn -> 
+          assert_good_enough(4, 5)
+        end)
     end
   end
   

@@ -194,21 +194,33 @@ defmodule FlowAssertions.MiscA do
     end
   end
 
+  defchain assert_good_enough(%Regex{} = left, %Regex{} = right) do
+    if left.source != right.source,
+      do: elaborate_flunk(Messages.stock_equality, left: left, right: right)
+  end
+
+  defchain assert_good_enough(left, %Regex{} = right) when is_binary(left) do
+    if !(left =~ right),
+      do: elaborate_flunk(Messages.no_regex_match, left: left, right: right)
+  end
+
   defchain assert_good_enough(value_to_check, needed) do
     if not good_enough?(value_to_check, needed) do
       assert value_to_check == needed
     end
   end
-
+  
   defp assert_predicate(predicate, value_to_check) do
     predicate_value = predicate.(value_to_check)
     if not predicate_value do
-      elaborate_flunk "Predicate #{inspect predicate} failed",
-        left: value_to_check, right: predicate_value
+      elaborate_flunk Messages.failed_predicate(predicate), left: value_to_check
     end
   end
 
-  defp elaborate_flunk(message, opts) do
+
+  # ----------------------------------------------------------------------------
+  
+  def elaborate_flunk(message, opts) do
     try do
       flunk message
     rescue
@@ -245,6 +257,15 @@ defmodule FlowAssertions.MiscA do
 
   See also `FlowAssertions.StructA.assert_struct_named/2`. 
   """
+
+  # Can't use this:
+  #   if not match?(unquote(shape), eval_once) do
+  #     elaborate_flunk("The value doesn't match the given pattern.",
+  #       left: eval_once, right: unquote(shape))
+  #
+  # ... because the shape might have a pinned value. 
+
+  
   defmacro assert_shape(value_to_check, shape) do 
     pattern_string = Macro.to_string(shape)
     quote do 
