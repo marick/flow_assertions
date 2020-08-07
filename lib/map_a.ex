@@ -1,78 +1,91 @@
 defmodule FlowAssertions.MapA do
-  # import FlowAssertions.Defchain
-  # import ExUnit.Assertions
-  # import FlowAssertions.Misc
+  import ExUnit.Assertions
+  import FlowAssertions.Defchain
+  alias FlowAssertions.MiscA
 
-  # @doc """
-  # Test the existence and value of multiple fields with a single assertion:
+  @doc """
+  Test the existence and value of multiple fields with a single assertion:
 
-  #     assert_fields(some_map, key1: 12, key2: "hello")
+      assert_fields(some_map, key1: 12, key2: "hello")
 
-  # Alternately, you can test just for existence:
+  You can test just for existence:
 
-  #     assert_fields(some_map, [:key1, :key2]
+      assert_fields(some_map, [:key1, :key2]
 
-  # The second argument needn't contain all of the fields in the value under
-  # test. 
+  The keyword list need not contain all of the fields in `some_map`.
 
-  # In case of success, the first argument is returned so that making multiple
-  # assertions about the same value can be done without verbosity:
+  Values in the keyword list are compared as with
+  `FlowAssertions.MiscA.good_enough/2`. For example, regular expressions can
+  be used to check strings:
 
-  #     some_map
-  #     |> assert_fields([:key1, :key2])
-  #     |> assert_something_else
+     assert_fields(some_map, [name: ~r/_cohort/])
+
+  When functions or regular expressions are used as the value in a keyword list,
+  they are treated as with `
+  """
+
+  # Credit: Steve Freeman inspired this.
+  defchain assert_fields(kvs, list) do
+    assert_present = fn key -> 
+      assert_no_typo_in_struct_key(kvs, key)
+      assert Map.has_key?(kvs, key), "Field `#{inspect key}` is missing"
+    end
     
-  # """
+    list
+    |> Enum.map(fn
+      {key, expected} ->
+        assert_present.(key)
+        try do
+          MiscA.assert_good_enough(Map.get(kvs, key), expected)
+        rescue
+          _ex in ExUnit.AssertionError ->
+            :ignore
+            # IO.inspect ex
+        end
+      key ->
+        assert_present.(key)
+    end)
+  end
 
-  # # Credit: Steve Freeman inspired this.
-  # defchain assert_fields(kvs, list) do
-  #   assert_present = fn key -> 
-  #     assert_no_typo_in_struct_key(kvs, key)
-  #     assert Map.has_key?(kvs, key), "Field `#{inspect key}` is missing"
-  #   end
-    
-  #   list
-  #   |> Enum.map(fn
-  #     {key, expected} ->
-  #       assert_present.(key)
-  #       assert_extended_equality(Map.get(kvs, key), expected, key)
-  #     key ->
-  #       assert_present.(key)
-  #   end)
-  # end
+  @doc """
+  Same as `assert_fields` but more pleasingly grammatical
+  when testing only one field:
 
-  # @doc """
-  # Same as `assert_fields` but more pleasingly grammatical
-  # when testing only one field:
+      assert_field(some_map, key: "value")
 
-  #     assert_field(some_map, key: "value")
+  When checking existence, you don't have to use a list:
 
-  # When checking existence, you don't have to use a list:
+      assert_field(some_map, :key)
+  """
+  defchain assert_field(kvs, list) when is_list(list) do
+    assert_fields(kvs, list)
+  end
 
-  #     assert_field(some_map, :key)
-  # """
-  # defchain assert_field(kvs, list) when is_list(list) do
-  #   assert_fields(kvs, list)
-  # end
+  defchain assert_field(kvs, singleton) do
+    assert_fields(kvs, [singleton])
+  end
 
-  # defchain assert_field(kvs, singleton) do
-  #   assert_fields(kvs, [singleton])
-  # end
+  @doc """
+  Assert that the value of the map at the key matches a binding form. 
 
-  # @doc """
-  # Assert that the value of the map at the key matches a binding form. 
+      assert_field_shape(map, :field, %User{})
+      assert_field_shape(map, :field, [_ | _])
+  """
+  defmacro assert_field_shape(map, key, shape) do
+    quote do
+      eval_once = unquote(map)
+      assert_shape(Map.fetch!(eval_once, unquote(key)), unquote(shape))
+      eval_once
+    end
+  end
 
-  #     assert_field_shape(map, :field, %User{})
-  #     assert_field_shape(map, :field, [_ | _])
-  # """
-  # defmacro assert_field_shape(map, key, shape) do
-  #   quote do
-  #     eval_once = unquote(map)
-  #     assert_shape(Map.fetch!(eval_once, unquote(key)), unquote(shape))
-  #     eval_once
-  #   end
-  # end
 
+
+
+  # ----------------------------------------------------------------------------
+  # ----------------------------------------------------------------------------
+
+  
   
 
   # @doc """
@@ -115,31 +128,16 @@ defmodule FlowAssertions.MapA do
   #   assert Map.take(new, fields_to_compare) == Map.take(old, fields_to_compare)
   # end
 
-  # defp assert_extended_equality(actual, predicate, key) when is_function(predicate) do
-  #   msg = "#{inspect key} => #{inspect actual} fails predicate #{inspect predicate}"
-  #   assert(predicate.(actual), msg)
-  # end
 
-  # defp assert_extended_equality(actual, expected, key) do
-  #   msg =
-  #     """
-  #     `#{inspect key}` has the wrong value.
-  #     actual:   #{inspect actual}
-  #     expected: #{inspect expected}
-  #     """
-  #   assert(actual == expected, msg)
-  # end
-
-
-  # @doc """
-  # Complain if given a key that doesn't exist in the argument (if it's a struct).
-  # """
-  # defchain assert_no_typo_in_struct_key(map, key) do
-  #   if Map.has_key?(map, :__struct__) do
-  #     assert Map.has_key?(map, key),
-  #       "Test error: there is no key `#{inspect key}` in #{inspect map.__struct__}"
-  #   end
-  # end
+  @doc """
+  Complain if given a key that doesn't exist in the argument (if it's a struct).
+  """
+  defchain assert_no_typo_in_struct_key(map, key) do
+    if Map.has_key?(map, :__struct__) do
+      assert Map.has_key?(map, key),
+        "Test error: there is no key `#{inspect key}` in #{inspect map.__struct__}"
+    end
+  end
 
   # # ----------------------------------------------------------------------------
   # @doc """

@@ -2,94 +2,21 @@ defmodule FlowAssertions.MapATest do
   use ExUnit.Case, async: true
   use FlowAssertions
 
-#  import FlowAssertions.{Map, Assertion}
-
   # defstruct name: nil # Used for typo testing
 
-  # @under_test %{field1: 1, field2: 2, list: [1, 2], empty: []}
 
-  # describe "`assert_fields` with keyword lists" do
-  #   test "assertion failure" do
-  #     assertion_fails_with_diagnostic(
-  #       "Field `:missing_field` is missing",
-  #       fn -> 
-  #         assert_fields(@under_test, field1: 1,  missing_field: 5)
-  #       end)
-  #   end
 
-  #   test "how a bad value is reported" do
-  #     assertion_fails_with_diagnostic(
-  #       ["`:field2` has the wrong value",
-  #        "actual:   2",
-  #        "expected: 3838"],
-  #       fn -> 
-  #         assert_fields(@under_test, field1: 1,  field2: 3838)
-  #       end)
-  #   end
-        
-  #   test "no failure returns value being tested" do 
-  #     result = assert_fields(@under_test, field1: 1)
-  #     assert @under_test == result
-  #   end
-
-  #   test "note that the field must actually be present" do
-  #     # We don't use Map.get with a default.
-  #     assertion_fails_with_diagnostic(
-  #       "Field `:missing_field` is missing",
-  #       fn ->
-  #         assert_fields(@under_test, missing_field: nil)
-  #       end)
-  #   end
-
-  #   test "can check a field against a predicate" do
-  #     # pass
-  #     assert @under_test == assert_fields(@under_test, empty: &Enum.empty?/1)
-
-  #     # fail
-  #     assert_raise ExUnit.AssertionError, fn ->
-  #       assert_fields(@under_test, list: &Enum.empty?/1)
-  #     end
-  #   end
-
-  #   test "how bad predicate values are printed" do
-  #     assertion_fails_with_diagnostic(
-  #       ":list => [1, 2] fails predicate &Enum.empty?/1",
-  #       fn ->
-  #         assert_fields(@under_test, list: &Enum.empty?/1)
-  #       end)
-  #   end
-  # end
-
-  # describe "`assert_fields` with just a list of fields" do
-  #   test "how failure is reported" do
-  #     assertion_fails_with_diagnostic(
-  #       "Field `:missing_field` is missing",
-  #       fn -> 
-  #         assert_fields(@under_test, [:field1, :missing_field])
-  #     end)
-  #   end
-
-  #   test "no failure returns value being tested" do 
-  #     result = assert_fields(@under_test, [:field1])
-  #     assert @under_test == result
-  #   end
-
-  #   test "`nil` and `false` are valid values." do
-  #     input = %{nil_field: nil, false_field: false}
-  #     assert_fields(input, [:nil_field, :false_field])
-  #   end
-  # end
 
   # describe "`assert_field`" do
   #   test "usefulness for the grammar pedant" do 
-  #     assert_field(@under_test, field1: 1)
+  #     assert_field(@map, field1: 1)
   #   end
 
   #   test "you can use a singleton value to test field presence" do
   #     assertion_fails_with_diagnostic(
   #       "Field `:missing_field` is missing",
   #       fn -> 
-  #         assert_field(@under_test, :missing_field)
+  #         assert_field(@map, :missing_field)
   #       end)
   #   end
   # end
