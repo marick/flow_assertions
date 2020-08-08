@@ -33,7 +33,7 @@ This is a library of assertions for Elixir's ExUnit. It emphasizes two things:
 
 2. Error messages as helpful as those in the base ExUnit assertions:
 
-   <img src="/pics/error.png"/>
+   <img src="/pics/error2.png"/>
 
 ## Installation
 
