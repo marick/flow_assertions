@@ -75,78 +75,63 @@ defmodule FlowAssertions.MapA do
   end
 
   @doc """
-  Assert that the value of the map at the key matches a binding form. 
+    An equality comparison of two maps that gives control over
+    which fields should not be compared or should be compared differently.
 
-      assert_field_shape(map, :field, %User{})
-      assert_field_shape(map, :field, [_ | _])
+    It is typically used after some `old` map has been transformed to make a
+    `new` one.
+
+    To exclude some fields from the comparison:
+
+        assert_same_map(new, old, ignoring: [:lock_version, :updated_at])
+
+    To assert different values for particular fields:
+
+        assert_same_map(new, old,
+          except: [lock_version: old.lock_version + 1,
+                   people: &Enum.empty/1])
+
+    Note that the `except` comparison uses
+    `FlowAssertions.MiscA.assert_good_enough/2`.
+
+    See also `assert_same_subset/3`
   """
-  defmacro assert_field_shape(map, key, shape) do
-    quote do
-      eval_once = unquote(map)
-      assert_shape(Map.fetch!(eval_once, unquote(key)), unquote(shape))
-      eval_once
-    end
+  defchain assert_same_map(new, old, opts \\ []) do
+    except = Keyword.get(opts, :except, [])
+    ignoring_keys =
+      Keyword.get(opts, :ignoring, []) ++ Keyword.keys(except)
+
+    for key <- ignoring_keys, 
+      do: assert_no_typo_in_struct_key(new, key)
+      
+    assert_fields(new, except)
+    assert Map.drop(new, ignoring_keys) == Map.drop(old, ignoring_keys)
   end
 
 
-
-
-  # ----------------------------------------------------------------------------
-  # ----------------------------------------------------------------------------
-
-  
-  
-
-  # @doc """
-  #   An equality comparison of two maps that gives control over
-  #   which fields should not be compared, or should be compared differently.
-
-  #   To exclude some fields from the comparison:
-
-  #       assert_copy(new, old, ignoring: [:lock_version, :updated_at])
-
-  #   To assert different values for particular fields (as in `assert_fields`):
-
-  #       assert_copy(new, old,
-  #         except: [lock_version: old.lock_version + 1,
-  #                  people: &Enum.empty/1])
-
-  #   Combine both for concise assertions:
-
-  #     AnimalT.update_for_success(original_animal.id, params)
-  #     |> assert_copy(original_animal,
-  #          except:[
-  #            in_service_datestring: dates.iso_next_in_service,
-  #            span: Datespan.inclusive_up(dates.next_in_service),
-  #            lock_version: 2]
-  #          ignoring: [:updated_at])
-  # """
-  # defchain assert_copy(new, old, opts \\ []) do
-  #   except = Keyword.get(opts, :except, [])
-  #   ignoring_keys =
-  #     Keyword.get(opts, :ignoring, []) ++ Keyword.keys(except)
-
-  #   Enum.map(ignoring_keys, &(assert_no_typo_in_struct_key(new, &1)))
-      
-  #   assert_fields(new, except)
-  #   assert Map.drop(new, ignoring_keys) == Map.drop(old, ignoring_keys)
-  # end
-
-
-  # defchain assert_partial_copy(new, old, fields_to_compare) do
+  # defchain assert_same_subset(new, old, fields_to_compare) do
   #   assert Map.take(new, fields_to_compare) == Map.take(old, fields_to_compare)
   # end
 
 
-  @doc """
-  Complain if given a key that doesn't exist in the argument (if it's a struct).
-  """
-  defchain assert_no_typo_in_struct_key(map, key) do
-    if Map.has_key?(map, :__struct__) do
-      assert Map.has_key?(map, key),
-        "Test error: there is no key `#{inspect key}` in #{inspect map.__struct__}"
-    end
-  end
+
+
+  # @doc """
+  # Assert that the value of the map at the key matches a binding form. 
+
+  #     assert_field_shape(map, :field, %User{})
+  #     assert_field_shape(map, :field, [_ | _])
+  # """
+  # defmacro assert_field_shape(map, key, shape) do
+  #   quote do
+  #     eval_once = unquote(map)
+  #     assert_shape(Map.fetch!(eval_once, unquote(key)), unquote(shape))
+  #     eval_once
+  #   end
+  # end
+
+
+  
 
   # # ----------------------------------------------------------------------------
   # @doc """
@@ -186,8 +171,13 @@ defmodule FlowAssertions.MapA do
 
   # def refute_nothing(map, key), do: refute_nothing(map, [key])
 
+  # ------------------------------------------------------------------------
 
-  # # ------------------------------------------------------------------------
-
+  defp assert_no_typo_in_struct_key(map, key) do
+    if Map.has_key?(map, :__struct__) do
+      assert Map.has_key?(map, key),
+        "Test error: there is no key `#{inspect key}` in #{inspect map.__struct__}"
+    end
+  end
   
 end
