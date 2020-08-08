@@ -134,5 +134,34 @@ defmodule FlowAssertions.MapAAssertFieldsTest do
         end)
     end
   end
+
+  describe "using a map instead of a keyword list" do
+    test "superset assertions" do 
+      bigger = %{a: 1, b: 2, c: 3}
+      smaller = %{a: 1, b: 2}
+
+      assert_fields(bigger, smaller)
+
+      assertion_fails(
+        "Field `:a` has the wrong value",
+        fn -> 
+          assert_fields(bigger, %{a: 3})
+        end)
+    end
+
+    test "non-keywords" do 
+      bigger = %{"a" => 1, "b" => 2}
+      smaller = %{"a" => 1}
+
+      assert_fields(bigger, smaller)
+
+      assertion_fails(
+        ~s/Field `"a"` has the wrong value/,
+        fn -> 
+          assert_fields(bigger, %{"a" => 3})
+        end)
+    end
+  end
+  
 end
 

@@ -20,16 +20,21 @@ defmodule FlowAssertions.MapA do
   expressions can be used to check strings:
 
       assert_fields(some_map, name: ~r/_cohort/)
+
+  `assert_fields` can also take a map as its second argument. That's
+  useful when the map to be tested has non-keyword arguments:
+
+      assert_fields(string_map, %{"a" => 3})
   """
 
   # Credit: Steve Freeman inspired this.
-  defchain assert_fields(kvs, list) do
+  defchain assert_fields(kvs, list_or_map) do
     assert_present = fn key ->
       assert_no_typo_in_struct_key(kvs, key)
       elaborate_assert(Map.has_key?(kvs, key),
         "Field `#{inspect key}` is missing",
         left: kvs,
-        right: list)
+        right: list_or_map)
       key
     end
 
@@ -41,7 +46,7 @@ defmodule FlowAssertions.MapA do
         expr: AssertionError.no_value)
     end
     
-    list
+    list_or_map
     |> Enum.map(fn
       {key, expected} ->
         key |> assert_present.() |> refute_single_error.(expected)
