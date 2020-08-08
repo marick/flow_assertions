@@ -4,26 +4,19 @@ defmodule FlowAssertions.AssertionA do
   
   import FlowAssertions.Defchain
   import ExUnit.Assertions
-  alias FlowAssertions.MiscA
+  alias FlowAssertions.MapA
 
 
   defchain assertion_fails(message, kws \\ [], f) do
     assert_raise(ExUnit.AssertionError, f)
-    |> temp_assert_fields(kws ++ [message: message])
+    |> MapA.assert_fields(kws ++ [message: message])
   end
 
   defchain assertion_fails_for(under_test, left, message, kws \\ []) do
     assert_raise(ExUnit.AssertionError, fn -> under_test.(left) end)
-    |> temp_assert_fields(kws ++ [message: message, left: left])
+    |> MapA.assert_fields(kws ++ [message: message, left: left])
   end
 
-  # replace this with the real assert_fields when that's working
-  defp temp_assert_fields(exception, kws) do
-    for {key, expected} <- kws do
-      Map.get(exception, key)
-      |> MiscA.assert_good_enough(expected)
-    end
-  end
 
   ##### OLD
 
