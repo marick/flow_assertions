@@ -1,10 +1,10 @@
 defmodule FlowAssertions.MiscA do
-  import FlowAssertions.Defchain
+  import FlowAssertions.{Defchain,AssertionHelpers}
   import ExUnit.Assertions
   alias FlowAssertions.Messages
 
   @doc """
-  Check if a value is an `:ok` or an `:ok` tuple.
+  Check if a value is an `:ok` or an `{:ok, <content>}` tuple.
 
   ```
   value_to_check |> assert_ok(:ok)
@@ -39,7 +39,7 @@ defmodule FlowAssertions.MiscA do
     do: elaborate_flunk(Messages.not_ok_tuple, left: actual)
 
   @doc """
-  Check if value is an `:error` or an `:error` tuple.
+  Check if value is an `:error` or an `{:error, <content>}` tuple.
 
   ```
   value_to_check |> assert_error(:error)
@@ -75,14 +75,19 @@ defmodule FlowAssertions.MiscA do
 
 
   @doc """
-  Fail unless the value given is a three-element tuple with the first
-  element `:error` and the second a required subcategory of error.
+  A variant of `assert_error/2` for three-element `:error` tuples.
 
   ```
   value_to_check |> assert_error(:error, :constraint)
   ```
 
-  Note that the third element of the tuple is ignored.
+  Sometimes it's useful for an `:error` tuple to identify different
+  kinds of errors. For example, Phoenix form processing errors might
+  be due to either `:validation` or `:constraint` errors and reported
+  in a tuple like `{:error, :constraint, <message>}`
+
+  This function checks that the second element is as required. The
+  third element is ignored.
 
   See also `error2_content/2`, which takes such a tuple and returns the
   third element.
@@ -91,12 +96,11 @@ defmodule FlowAssertions.MiscA do
   # Hmm. Can't use `{:error, actual_subtype, content} = all` in the following.
   # Problem with defchain?
   defchain assert_error2({:error, actual_subtype, content}, expected_subtype) do
-    if actual_subtype != expected_subtype do 
-      elaborate_flunk(
-        Messages.bad_error_3tuple_subtype(actual_subtype, expected_subtype),
-        left: {:error, actual_subtype, content},
-        right: expected_subtype)
-    end
+    elaborate_assert(
+      actual_subtype == expected_subtype,
+      Messages.bad_error_3tuple_subtype(actual_subtype, expected_subtype),
+      left: {:error, actual_subtype, content},
+      right: expected_subtype)
   end
   
   def assert_error2(value_to_check, expected_error_subtype) do
@@ -178,54 +182,53 @@ defmodule FlowAssertions.MiscA do
 
 
 
+  @doc """
+  Like `assert x == y`, but with special handling for predicates and
+  regular expressions.
+
+  By default `assert_good_enough` uses `==` to test the left side
+  against the right. However:
+
+  * If the right side is a regular expression and the left side
+    is not, the two are compared with `=~` rather than `==`.
+
+  * If the right side is a function and the left side is not,
+    the function is applied to the value. Any "falsy" value
+    is a failure.
+
+  ```
+  assert_good_enough?(1, &odd/1)
+  assert_good_enough?("string", ~r/s.r..g/)
+  ```
+  See also `good_enough?/2`
+  """
   defchain assert_good_enough(value_to_check, predicate)
-  when is_function(predicate) do
-    if is_function(value_to_check) do
-      assert value_to_check == predicate
-    else
-      assert_predicate predicate, value_to_check
-    end
+  when is_function(predicate) and not is_function(value_to_check) do
+    elaborate_assert(
+      predicate.(value_to_check),
+      Messages.failed_predicate(predicate),
+      left: value_to_check)
   end
 
   defchain assert_good_enough(%Regex{} = left, %Regex{} = right) do
-    if left.source != right.source,
-      do: elaborate_flunk(Messages.stock_equality, left: left, right: right)
+    elaborate_assert(
+      left.source == right.source,
+      Messages.stock_equality, left: left, right: right)
   end
 
   defchain assert_good_enough(left, %Regex{} = right) when is_binary(left) do
-    if !(left =~ right),
-      do: elaborate_flunk(Messages.no_regex_match, left: left, right: right)
+    elaborate_assert(
+      left =~ right,
+      Messages.no_regex_match, left: left, right: right)
   end
 
   defchain assert_good_enough(value_to_check, needed) do
     assert value_to_check == needed
   end
   
-  defp assert_predicate(predicate, value_to_check) do
-    predicate_value = predicate.(value_to_check)
-    if !predicate_value do
-      elaborate_flunk Messages.failed_predicate(predicate), left: value_to_check
-    end
-  end
-
-
-  # ----------------------------------------------------------------------------
-  
-  def elaborate_flunk(message, opts) do
-    try do
-      flunk message
-    rescue
-      ex in ExUnit.AssertionError ->
-        annotated =
-          Enum.reduce(opts, ex, fn {k, v}, acc -> Map.put(acc, k, v) end)
-        reraise annotated, __STACKTRACE__
-    end
-  end
-
-  
   # ----------------------------------------------------------------------------
   @doc """
-  Assert that the value the matches a binding form. 
+  Assert that the value matches a binding form. 
 
   ```
   value_to_check |> assert_shape(%User{})
@@ -270,6 +273,9 @@ defmodule FlowAssertions.MiscA do
       eval_once
     end
   end
+
+  # ----------------------------------------------------------------------------
+
 
   # def ok_id(x) do
   #   ok_content(x).id
