@@ -2,23 +2,21 @@ defmodule FlowAssertions.MapAAssertFieldsTest do
   use ExUnit.Case, async: true
   use FlowAssertions
 
-  @map %{field1: 1, field2: 2, list: [1, 2], empty: []}
+  @map %{field1: 1, field2: 2, list: [1, 2], empty: [], name: "cohort_fred"}
 
   describe "`assert_fields` with keyword lists" do
     test "missing field" do
-      assertion_fails_with_diagnostic(
-        "Field `:missing_field` is missing",
+      checks = [field1: 1,  missing_field: 5]
+      assertion_fails("Field `:missing_field` is missing",
+        [left: @map, right: checks],
         fn -> 
-          assert_fields(@map, field1: 1,  missing_field: 5)
+          assert_fields(@map, checks)
         end)
     end
 
-    @tag :skip
     test "how a bad value is reported" do
-      assertion_fails_with_diagnostic(
-        ["`:field2` has the wrong value",
-         "actual:   2",
-         "expected: 3838"],
+      assertion_fails("Field `:field2` has the wrong value",
+        [left: 2, right: 3838],
         fn -> 
           assert_fields(@map, field1: 1,  field2: 3838)
         end)
@@ -33,27 +31,26 @@ defmodule FlowAssertions.MapAAssertFieldsTest do
 
 
   describe "follows rules for `MiscA.assert_good_enough`" do
-    @tag :skip
     test "can check a field against a predicate" do
-      # pass
-      assert @map == assert_fields(@map, empty: &Enum.empty?/1)
+      assert assert_fields(@map, empty: &Enum.empty?/1) == @map
 
-      # fail
-      assert_raise ExUnit.AssertionError, fn ->
-        assert_fields(@map, list: &Enum.empty?/1)
-      end
-    end
-
-    @tag :skip
-    test "how bad predicate values are printed" do
-      assertion_fails_with_diagnostic(
-        ":list => [1, 2] fails predicate &Enum.empty?/1",
+      # A little annoying that the predicate isn't shown in the `:right`.
+      assertion_fails("Field `:list` has the wrong value",
+        [left: @map.list],
         fn ->
           assert_fields(@map, list: &Enum.empty?/1)
         end)
     end
-    
-     #    assert_fields(some_map, [name: ~r/_cohort/])
+
+    test "can check a field against a regular expression" do
+      assert assert_fields(@map, name: ~r/cohort/) == @map
+
+      assertion_fails("Field `:name` has the wrong value",
+        [left: @map.name, right: ~r/_cohort/],
+        fn ->
+          assert_fields(@map, name: ~r/_cohort/)
+        end)
+    end
   end
 
 

@@ -1,5 +1,6 @@
 defmodule FlowAssertions.AssertionHelpers do
   import ExUnit.Assertions
+  import FlowAssertions.Defchain
   
   @moduledoc """
   Functions that allow a little more control over what people see when
@@ -55,8 +56,20 @@ defmodule FlowAssertions.AssertionHelpers do
 
   """
 
-  def elaborate_assert(value, message, opts) do
+  defchain elaborate_assert(value, message, opts) do
     if !value, do: elaborate_flunk(message, opts)
   end
 
+
+  def adjust_assertion_error(f, replacements) do
+    try do
+      f.()
+    rescue
+      ex in ExUnit.AssertionError ->
+        Enum.reduce(replacements, ex, fn {key, value}, acc ->
+          Map.put(acc, key, value)
+        end)
+        |> reraise(__STACKTRACE__)
+    end
+  end
 end  

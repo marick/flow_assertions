@@ -1,7 +1,8 @@
 defmodule FlowAssertions.MapA do
   import ExUnit.Assertions
-  import FlowAssertions.Defchain
+  import FlowAssertions.{Defchain,AssertionHelpers}
   alias FlowAssertions.MiscA
+  alias ExUnit.AssertionError
 
   @doc """
   Test the existence and value of multiple fields with a single assertion:
@@ -15,37 +16,40 @@ defmodule FlowAssertions.MapA do
   The keyword list need not contain all of the fields in `some_map`.
 
   Values in the keyword list are compared as with
-  `FlowAssertions.MiscA.good_enough/2`. For example, regular expressions can
-  be used to check strings:
+  `FlowAssertions.MiscA.assert_good_enough/2`. For example, regular
+  expressions can be used to check strings:
 
-     assert_fields(some_map, [name: ~r/_cohort/])
-
-  When functions or regular expressions are used as the value in a keyword list,
-  they are treated as with `
+      assert_fields(some_map, name: ~r/_cohort/)
   """
 
   # Credit: Steve Freeman inspired this.
   defchain assert_fields(kvs, list) do
-    assert_present = fn key -> 
+    assert_present = fn key ->
       assert_no_typo_in_struct_key(kvs, key)
-      assert Map.has_key?(kvs, key), "Field `#{inspect key}` is missing"
+      elaborate_assert(Map.has_key?(kvs, key),
+        "Field `#{inspect key}` is missing",
+        left: kvs,
+        right: list)
+      key
+    end
+
+    refute_single_error = fn key, expected ->
+      adjust_assertion_error(fn ->
+        MiscA.assert_good_enough(Map.get(kvs, key), expected)
+      end, 
+        message: "Field `#{inspect key}` has the wrong value",
+        expr: AssertionError.no_value)
     end
     
     list
     |> Enum.map(fn
       {key, expected} ->
-        assert_present.(key)
-        try do
-          MiscA.assert_good_enough(Map.get(kvs, key), expected)
-        rescue
-          _ex in ExUnit.AssertionError ->
-            :ignore
-            # IO.inspect ex
-        end
+        key |> assert_present.() |> refute_single_error.(expected)
       key ->
         assert_present.(key)
     end)
   end
+
 
   @doc """
   Same as `assert_fields` but more pleasingly grammatical
