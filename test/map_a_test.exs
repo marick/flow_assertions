@@ -2,53 +2,9 @@ defmodule FlowAssertions.MapATest do
   use ExUnit.Case, async: true
   use FlowAssertions
 
-  # defstruct name: nil # Used for typo testing
 
 
 
-
-  # describe "`assert_field`" do
-  #   test "usefulness for the grammar pedant" do 
-  #     assert_field(@map, field1: 1)
-  #   end
-
-  #   test "you can use a singleton value to test field presence" do
-  #     assertion_fails_with_diagnostic(
-  #       "Field `:missing_field` is missing",
-  #       fn -> 
-  #         assert_field(@map, :missing_field)
-  #       end)
-  #   end
-  # end
-
-  # describe "typo protection" do
-  #   test "... is possible in a struct" do
-  #     struct = %__MODULE__{name: "hello"}
-
-  #     assertion_fails_with_diagnostic(
-  #       "Test error: there is no key `:typo` in FlowAssertions.MapTest",
-  #       fn ->
-  #         assert_field(struct, :typo)
-  #       end)
-
-  #     assertion_fails_with_diagnostic(
-  #       "Test error: there is no key `:typo` in FlowAssertions.MapTest",
-  #       fn ->
-  #         assert_field(struct, typo: 5)
-  #       end)
-
-  #     # It doesn't spuriously fail.
-  #     # (Everywhere else in this file, we use maps.)
-  #     assert_field(struct, :name)
-
-  #     # It doesn't fail on maps *for this reason*.
-  #     assertion_fails_with_diagnostic(
-  #       "Field `:typo` is missing",
-  #       fn -> 
-  #         assert_field(%{name: 3}, typo: 3)
-  #       end)
-  #   end
-  # end
 
   # describe "`assert_copy`" do
   #   test "can ignore fields" do

@@ -53,19 +53,19 @@ defmodule FlowAssertions.MapAAssertFieldsTest do
     end
   end
 
-
   describe "`assert_fields` with just a list of fields" do
     test "how failure is reported" do
-      assertion_fails_with_diagnostic(
+      checks = [:field1, :missing_field]
+      assertion_fails(
         "Field `:missing_field` is missing",
+        [left: @map, right: checks],
         fn -> 
-          assert_fields(@map, [:field1, :missing_field])
+          assert_fields(@map, checks)
       end)
     end
 
     test "no failure returns value being tested" do 
-      result = assert_fields(@map, [:field1])
-      assert @map == result
+      assert assert_fields(@map, [:field1]) == @map
     end
 
     test "`nil` and `false` are valid values." do
@@ -74,21 +74,65 @@ defmodule FlowAssertions.MapAAssertFieldsTest do
     end
   end
 
-  @tag :skip
   test "a mixture of value and existence checks" do
     assert assert_fields(@map, [field1: 1] ++ [:field2]) == @map
 
-    assertion_fails_with_diagnostic(
-      ["`:field1` has the wrong value"],
+    assertion_fails(
+      "Field `:field1` has the wrong value",
       fn -> 
         assert_fields(@map, [{:field1, 33}, :field2])
       end)
     
-    assertion_fails_with_diagnostic(
+    assertion_fails(
       "Field `:missing` is missing",
       fn -> 
         assert_fields(@map, [{:field1, 1}, :missing])
       end)
+  end
+
+  defstruct name: nil # Used for typo testing
+
+  describe "typo protection" do
+    test "... is possible in a struct" do
+      struct = %__MODULE__{name: "hello"}
+
+      assertion_fails(
+        ~r/Test error: there is no key `:typo` in/,
+        fn ->
+          assert_field(struct, :typo)
+        end)
+
+      assertion_fails(
+        "Test error: there is no key `:typo` in FlowAssertions.MapAAssertFieldsTest",
+        fn ->
+          assert_field(struct, typo: 5)
+        end)
+
+      # It doesn't fail when it shouldn't
+      assert_field(struct, :name)
+    end
+
+    test "It doesn't fail on maps *for this reason*." do
+      assertion_fails(
+        "Field `:typo` is missing",
+        fn -> 
+          assert_field(%{name: 3}, typo: 3)
+        end)
+    end
+  end
+
+  describe "`assert_field`" do
+    test "usefulness for the grammar pedant" do 
+      assert_field(@map, field1: 1)
+    end
+
+    test "you can use a singleton value to test field presence" do
+      assertion_fails(
+        "Field `:missing_field` is missing",
+        fn -> 
+          assert_field(@map, :missing_field)
+        end)
+    end
   end
 end
 
