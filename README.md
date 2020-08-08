@@ -10,7 +10,7 @@ This is a library of assertions for Elixir's ExUnit. It emphasizes two things:
       ```elixir
       VM.ServiceGap.accept_form(params, @institution)
       |> ok_content
-      |> assertb_valid
+      |> assert_valid
       |> assert_changes(id: 1,
                         in_service_datestring: @iso_date_1,
                         out_of_service_datestring: @iso_date_2,
@@ -27,6 +27,7 @@ This is a library of assertions for Elixir's ExUnit. It emphasizes two things:
       assert changes.id == 1
       assert changes.in_service_datestring == @iso_date_1
       assert changes.out_of_service_datestring == @iso_date_2
+      assert changes.reason == "reason"
       ```
    
 
