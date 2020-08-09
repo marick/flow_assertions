@@ -85,6 +85,10 @@ defmodule FlowAssertions.MapA do
 
         assert_same_map(new, old, ignoring: [:lock_version, :updated_at])
 
+    To compare only some of the keys:
+
+        assert_same_map(new, old, comparing: [:name, :people])
+
     To assert different values for particular fields:
 
         assert_same_map(new, old,
@@ -93,8 +97,6 @@ defmodule FlowAssertions.MapA do
 
     Note that the `except` comparison uses
     `FlowAssertions.MiscA.assert_good_enough/2`.
-
-    See also `assert_same_subset/3`
   """
   defchain assert_same_map(new, old, opts \\ []) do
     if Keyword.has_key?(opts, :ignoring) && Keyword.has_key?(opts, :comparing),
