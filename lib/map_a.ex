@@ -123,7 +123,9 @@ defmodule FlowAssertions.MapA do
 
   defp compare_ignoring_keys(new, old, ignoring_keys) do
     assert_no_struct_key_typos(new, ignoring_keys)
-    assert Map.drop(new, ignoring_keys) == Map.drop(old, ignoring_keys)
+    elaborate_assert_equal(
+      Map.drop(new, ignoring_keys),
+      Map.take(old, ignoring_keys))
   end
 
   defp assert_comparing_keys(new, old, fields_to_compare) do
