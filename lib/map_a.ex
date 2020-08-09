@@ -30,7 +30,7 @@ defmodule FlowAssertions.MapA do
   # Credit: Steve Freeman inspired this.
   defchain assert_fields(kvs, list_or_map) do
     assert_present = fn key ->
-      assert_no_typo_in_struct_key(kvs, key)
+      assert_no_struct_key_typos(kvs, key)
       elaborate_assert(Map.has_key?(kvs, key),
         "Field `#{inspect key}` is missing",
         left: kvs,
@@ -97,14 +97,19 @@ defmodule FlowAssertions.MapA do
     See also `assert_same_subset/3`
   """
   defchain assert_same_map(new, old, opts \\ []) do
-    except = Keyword.get(opts, :except, [])
-    ignoring_keys =
-      Keyword.get(opts, :ignoring, []) ++ Keyword.keys(except)
+    if Keyword.has_key?(opts, :ignoring) && Keyword.has_key?(opts, :comparing),
+      do: flunk("Test error: you can't use both `:ignoring` and `comparing")
 
-    for key <- ignoring_keys, 
-      do: assert_no_typo_in_struct_key(new, key)
+    opts = Enum.into(opts, %{ignoring: [], comparing: [], except: []})
+    except_keys = Keyword.keys(opts.except)
+
+    assert_no_struct_key_typos(new, except_keys)
+    assert_fields(new, opts.except)
+    
+    ignoring_keys = opts.ignoring ++ except_keys
+
+    assert_no_struct_key_typos(new, ignoring_keys)
       
-    assert_fields(new, except)
     assert Map.drop(new, ignoring_keys) == Map.drop(old, ignoring_keys)
   end
 
@@ -173,7 +178,13 @@ defmodule FlowAssertions.MapA do
 
   # ------------------------------------------------------------------------
 
-  defp assert_no_typo_in_struct_key(map, key) do
+  defp assert_no_struct_key_typos(map, keys) when is_list(keys) do
+    for key <- keys, 
+      do: assert_no_struct_key_typos(map, key)
+  end
+      
+  
+  defp assert_no_struct_key_typos(map, key) do
     if Map.has_key?(map, :__struct__) do
       assert Map.has_key?(map, key),
         "Test error: there is no key `#{inspect key}` in #{inspect map.__struct__}"
