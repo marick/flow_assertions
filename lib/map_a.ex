@@ -79,7 +79,7 @@ defmodule FlowAssertions.MapA do
     which fields should not be compared or should be compared differently.
 
     It is typically used after some `old` map has been transformed to make a
-    `new` one.
+    `new` one. 
 
     To exclude some fields from the comparison:
 
@@ -97,6 +97,13 @@ defmodule FlowAssertions.MapA do
 
     Note that the `except` comparison uses
     `FlowAssertions.MiscA.assert_good_enough/2`.
+
+
+    Note that if the first value is a struct, the second must have the same type:
+
+        Assertion with == failed
+        left:  %S{b: 3}
+        right: %R{b: 3}
   """
   defchain assert_same_map(new, old, opts \\ []) do
     if Keyword.has_key?(opts, :ignoring) && Keyword.has_key?(opts, :comparing),
@@ -105,27 +112,28 @@ defmodule FlowAssertions.MapA do
     get_list = fn key -> Keyword.get(opts, key, []) end
 
     {remaining_new, remaining_old} = 
-      compare_except_keys(new, old, get_list.(:except))
+      compare_specific_fields(new, old, get_list.(:except))
 
     if Keyword.has_key?(opts, :comparing) do
       assert_comparing_keys(remaining_new, remaining_old, get_list.(:comparing))
     else
-      compare_ignoring_keys(remaining_new, remaining_old, get_list.(:ignoring))
+      assert_ignoring_keys(remaining_new, remaining_old, get_list.(:ignoring))
     end
   end
 
-  defp compare_except_keys(new, old, except_kvs) do
-    except_keys = Keyword.keys(except_kvs)
-    assert_no_struct_key_typos(new, except_keys)
-    assert_fields(new, except_kvs)
-    { Map.drop(new, except_keys), Map.drop(old, except_keys)}
+  # So much for the single responsibility principle. But it feels *so good*.
+  defp compare_specific_fields(new, old, expected_kvs) do
+    expected_keys = Keyword.keys(expected_kvs)
+    assert_no_struct_key_typos(new, expected_keys)
+    assert_fields(new, expected_kvs)
+    { Map.drop(new, expected_keys), Map.drop(old, expected_keys)}
   end
 
-  defp compare_ignoring_keys(new, old, ignoring_keys) do
-    assert_no_struct_key_typos(new, ignoring_keys)
+  defp assert_ignoring_keys(new, old, fields_to_ignore) do
+    assert_no_struct_key_typos(new, fields_to_ignore)
     elaborate_assert_equal(
-      Map.drop(new, ignoring_keys),
-      Map.take(old, ignoring_keys))
+      Map.drop(new, fields_to_ignore),
+      Map.drop(old, fields_to_ignore))
   end
 
   defp assert_comparing_keys(new, old, fields_to_compare) do

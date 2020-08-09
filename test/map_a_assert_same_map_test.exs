@@ -98,9 +98,8 @@ defmodule FlowAssertions.MapAAssertSameMapTest do
     end
 
     test "'except' fields must be present" do
-      
       new = old = %__MODULE__{name: 1}
-      assertion_fails_with_diagnostic(
+      assertion_fails(
         ~r/Test error: there is no key `:extra` in FlowAssertions.Map.*Test/,
         fn -> 
           assert_same_map(new, old, except: [extra: 33])
@@ -115,6 +114,46 @@ defmodule FlowAssertions.MapAAssertSameMapTest do
     assert_same_map(new, old,
       except: [important_change: &Enum.empty?/1],
       ignoring: [:who_cares])
+  end
+
+  defmodule S do 
+    defstruct a: 5, b: 3
+  end
+
+  defmodule R do 
+    defstruct a: 5, b: 3
+  end
+
+  describe "structures are compared to structures" do
+    test "original structures" do
+      assert_same_map(%S{}, %S{})
+
+      assertion_fails(
+        Messages.stock_equality,
+        fn -> 
+          assert_same_map(%S{}, %R{})
+        end)
+    end
+
+    test "result of ignoring" do
+      assert_same_map(%S{a: 3}, %S{a: 4}, ignoring: [:a])
+
+      assertion_fails(
+        Messages.stock_equality,
+        fn -> 
+          assert_same_map(%S{a: 3}, %R{a: 4}, ignoring: [:a])
+        end)
+    end
+
+    test "result of `comparing`" do
+      assert_same_map(%S{a: 3}, %S{a: 4}, comparing: [:b])
+      
+      assertion_fails(
+        Messages.stock_equality,
+        fn -> 
+          assert_same_map(%S{}, %R{}, ignoring: [:a])
+        end)
+    end
   end
 end
   
