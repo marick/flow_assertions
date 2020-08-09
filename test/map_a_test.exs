@@ -7,19 +7,6 @@ defmodule FlowAssertions.MapATest do
 
 
 
-  # test "partial copy comparison" do
-  #   old = %{stable: 1,  change: [1]}
-  #   new =  %{stable: 1, change: []}
-
-  #   assert_partial_copy(new, old, [:stable])
-
-  #   assertion_fails_with_diagnostic(
-  #     ["Assertion with == failed"],
-  #     fn -> 
-  #       assert_partial_copy(new, old, [:stable, :change])
-  #     end)
-  # end
-  
   # describe "shape comparison" do
   #   test "map-like" do
   #     assert %PermissionList{}.view_reservations == true # default

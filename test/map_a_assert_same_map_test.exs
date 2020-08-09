@@ -21,7 +21,7 @@ defmodule FlowAssertions.MapAAssertSameMapTest do
       #     assert Map.drop(new, ignoring_keys) == Map.drop(old, ignoring_keys)
       #
       # That's not tested, because it's too much trouble.
-      
+
       assertion_fails(
         Messages.stock_equality,
         [left: %{field2: 2}, right: %{field2: 22222}],
@@ -87,4 +87,31 @@ defmodule FlowAssertions.MapAAssertSameMapTest do
         end)
     end
   end
-end  
+
+  describe ":comparing option" do
+    test "you can't use both" do
+      map = %{ignoring: 1,  comparing: [1]}
+      
+      assertion_fails(
+        "Test error: you can't use both `:ignoring` and `comparing",
+        fn ->
+          assert_same_map(map, map, ignoring: [:ignoring], comparing: [:stable])
+        end)
+    end
+    
+    test "partial copy comparison" do
+      old = %{stable: 1,  change: [1]}
+      new =  %{stable: 1, change: []}
+      
+      assert_same_map(new, old, comparing: [:stable])
+      
+      assertion_fails(
+        Messages.stock_equality,
+        [left: %{change: []}, right: %{change: [1]}],
+        fn -> 
+          assert_same_map(new, old, comparing: [:change])
+        end)
+    end
+  end
+end
+  

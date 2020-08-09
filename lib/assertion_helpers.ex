@@ -1,6 +1,8 @@
 defmodule FlowAssertions.AssertionHelpers do
   import ExUnit.Assertions
   import FlowAssertions.Defchain
+  alias ExUnit.AssertionError
+  alias FlowAssertions.Messages
   
   @moduledoc """
   Functions that allow a little more control over what people see when
@@ -60,6 +62,17 @@ defmodule FlowAssertions.AssertionHelpers do
     if !value, do: elaborate_flunk(message, opts)
   end
 
+  @doc """
+  This replicates the diagnostic output from `assert a == b`.
+  """
+  defchain elaborate_assert_equal(left, right) do
+    elaborate_assert(left == right,
+      Messages.stock_equality,
+      left: left, right: right,
+      expr: AssertionError.no_value)
+  end
+
+  # ----------------------------------------------------------------------------
 
   def adjust_assertion_error(f, replacements) do
     try do

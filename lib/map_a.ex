@@ -100,14 +100,15 @@ defmodule FlowAssertions.MapA do
     if Keyword.has_key?(opts, :ignoring) && Keyword.has_key?(opts, :comparing),
       do: flunk("Test error: you can't use both `:ignoring` and `comparing")
 
+    get_list = fn key -> Keyword.get(opts, key, []) end
+
     {remaining_new, remaining_old} = 
-      compare_except_keys(new, old, Keyword.get(opts, :except, []))
+      compare_except_keys(new, old, get_list.(:except))
 
     if Keyword.has_key?(opts, :comparing) do
-      :no_op
+      assert_comparing_keys(remaining_new, remaining_old, get_list.(:comparing))
     else
-      ignoring_keys = Keyword.get(opts, :ignoring, [])
-      compare_ignoring_keys(remaining_new, remaining_old, ignoring_keys)
+      compare_ignoring_keys(remaining_new, remaining_old, get_list.(:ignoring))
     end
   end
 
@@ -123,10 +124,13 @@ defmodule FlowAssertions.MapA do
     assert Map.drop(new, ignoring_keys) == Map.drop(old, ignoring_keys)
   end
 
+  defp assert_comparing_keys(new, old, fields_to_compare) do
+    assert_no_struct_key_typos(new, fields_to_compare)
+    elaborate_assert_equal(
+      Map.take(new, fields_to_compare),
+      Map.take(old, fields_to_compare))
+  end
 
-  # defchain assert_same_subset(new, old, fields_to_compare) do
-  #   assert Map.take(new, fields_to_compare) == Map.take(old, fields_to_compare)
-  # end
 
 
 
