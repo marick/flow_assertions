@@ -100,16 +100,26 @@ defmodule FlowAssertions.MapA do
     if Keyword.has_key?(opts, :ignoring) && Keyword.has_key?(opts, :comparing),
       do: flunk("Test error: you can't use both `:ignoring` and `comparing")
 
-    opts = Enum.into(opts, %{ignoring: [], comparing: [], except: []})
-    except_keys = Keyword.keys(opts.except)
+    {remaining_new, remaining_old} = 
+      compare_except_keys(new, old, Keyword.get(opts, :except, []))
 
+    if Keyword.has_key?(opts, :comparing) do
+      :no_op
+    else
+      ignoring_keys = Keyword.get(opts, :ignoring, [])
+      compare_ignoring_keys(remaining_new, remaining_old, ignoring_keys)
+    end
+  end
+
+  defp compare_except_keys(new, old, except_kvs) do
+    except_keys = Keyword.keys(except_kvs)
     assert_no_struct_key_typos(new, except_keys)
-    assert_fields(new, opts.except)
-    
-    ignoring_keys = opts.ignoring ++ except_keys
+    assert_fields(new, except_kvs)
+    { Map.drop(new, except_keys), Map.drop(old, except_keys)}
+  end
 
+  defp compare_ignoring_keys(new, old, ignoring_keys) do
     assert_no_struct_key_typos(new, ignoring_keys)
-      
     assert Map.drop(new, ignoring_keys) == Map.drop(old, ignoring_keys)
   end
 
