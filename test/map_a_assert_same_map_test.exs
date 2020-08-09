@@ -5,7 +5,7 @@ defmodule FlowAssertions.MapAAssertSameMapTest do
 
   defstruct name: nil # Used for typo testing
 
-  describe "`assert_same_map`" do
+  describe ":ignoring" do
     test "can ignore fields" do
       old = %{stable: 1, field2: 22222}
       new =  %{stable: 1, field2: 2}
@@ -30,6 +30,45 @@ defmodule FlowAssertions.MapAAssertSameMapTest do
         end)
     end
 
+    test "':ignoring' fields must be present in new *struct*" do
+      irrelevant = %__MODULE__{name: 1}
+
+      assertion_fails(
+        ~r/Test error: there is no key `:extra` in FlowAssertions.Map.*Test/,
+        fn -> 
+          assert_same_map(irrelevant, irrelevant, ignoring: [:extra])
+        end)
+    end
+  end
+
+  describe ":comparing option" do
+    test "you can't use it with `:ignoring`" do
+      map = %{ignoring: 1,  comparing: [1]}
+      
+      assertion_fails(
+        "Test error: you can't use both `:ignoring` and `comparing",
+        fn ->
+          assert_same_map(map, map, ignoring: [:ignoring], comparing: [:stable])
+        end)
+    end
+    
+    test "partial copy comparison" do
+      old = %{stable: 1,  change: [1]}
+      new =  %{stable: 1, change: []}
+      
+      assert_same_map(new, old, comparing: [:stable])
+      
+      assertion_fails(
+        Messages.stock_equality,
+        [left: %{change: []}, right: %{change: [1]}],
+        fn -> 
+          assert_same_map(new, old, comparing: [:change])
+        end)
+    end
+  end
+
+    
+  describe ":except" do
     test "can do `assert_fields` comparisons" do
       old = %{stable: 1, important_change: 22222}
       new =  %{stable: 1, important_change: 2}
@@ -58,25 +97,6 @@ defmodule FlowAssertions.MapAAssertSameMapTest do
         end)
     end
 
-    test "combinations of arguments" do
-      old = %{stable: 1, important_change: [1], who_cares: 1}
-      new =  %{stable: 1, important_change: [], who_cares: 2}
-
-      assert_same_map(new, old,
-        except: [important_change: &Enum.empty?/1],
-        ignoring: [:who_cares])
-    end
-
-    test "'ignored' fields must be present in new *struct*" do
-      new = old = %__MODULE__{name: 1}
-
-      assertion_fails(
-        ~r/Test error: there is no key `:extra` in FlowAssertions.Map.*Test/,
-        fn -> 
-          assert_same_map(new, old, ignoring: [:extra])
-        end)
-    end
-
     test "'except' fields must be present" do
       
       new = old = %__MODULE__{name: 1}
@@ -88,30 +108,13 @@ defmodule FlowAssertions.MapAAssertSameMapTest do
     end
   end
 
-  describe ":comparing option" do
-    test "you can't use both" do
-      map = %{ignoring: 1,  comparing: [1]}
-      
-      assertion_fails(
-        "Test error: you can't use both `:ignoring` and `comparing",
-        fn ->
-          assert_same_map(map, map, ignoring: [:ignoring], comparing: [:stable])
-        end)
-    end
+  test "combinations of arguments" do
+    old = %{stable: 1, important_change: [1], who_cares: 1}
+    new =  %{stable: 1, important_change: [], who_cares: 2}
     
-    test "partial copy comparison" do
-      old = %{stable: 1,  change: [1]}
-      new =  %{stable: 1, change: []}
-      
-      assert_same_map(new, old, comparing: [:stable])
-      
-      assertion_fails(
-        Messages.stock_equality,
-        [left: %{change: []}, right: %{change: [1]}],
-        fn -> 
-          assert_same_map(new, old, comparing: [:change])
-        end)
-    end
+    assert_same_map(new, old,
+      except: [important_change: &Enum.empty?/1],
+      ignoring: [:who_cares])
   end
 end
   
