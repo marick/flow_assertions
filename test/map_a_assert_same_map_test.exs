@@ -1,4 +1,4 @@
-defmodule FlowAssertions.MapAAssertCopyTest do
+defmodule FlowAssertions.MapAAssertSameMapTest do
   use ExUnit.Case, async: true
   use FlowAssertions
   alias FlowAssertions.Messages
@@ -30,33 +30,32 @@ defmodule FlowAssertions.MapAAssertCopyTest do
         end)
     end
 
-    @tag :skip
     test "can do `assert_fields` comparisons" do
       old = %{stable: 1, important_change: 22222}
       new =  %{stable: 1, important_change: 2}
 
       assert_same_map(new, old, except: [important_change: 2])
 
-      assert_raise(ExUnit.AssertionError, fn -> 
-        assert_same_map(new, old, except: [important_change: 33])
-      end)
-      |> assert_field(
-           message: "`Field :important_change` has the wrong value.\nactual:   2\nexpected: 33\n")
+      assertion_fails(
+        "Field `:important_change` has the wrong value",
+        [left: 2, right: 33],
+        fn ->
+          assert_same_map(new, old, except: [important_change: 33])
+        end)
     end
 
-    @tag :skip
     test "`:except` assertions can include predicates" do
       old = %{stable: 1, important_change: [1]}
       new =  %{stable: 1, important_change: []}
 
       assert_same_map(new, old, except: [important_change: &Enum.empty?/1])
 
-      assert_raise(ExUnit.AssertionError, fn -> 
-        assert_same_map(old, old, except: [important_change: &Enum.empty?/1])
-      end)
-      |> assert_field(
-          message:  ":important_change => [1] fails predicate &Enum.empty?/1"
-      )
+      assertion_fails(
+        "Field `:important_change` has the wrong value",
+        [left: [1]],
+        fn -> 
+          assert_same_map(old, old, except: [important_change: &Enum.empty?/1])
+        end)
     end
 
     test "combinations of arguments" do
@@ -68,21 +67,21 @@ defmodule FlowAssertions.MapAAssertCopyTest do
         ignoring: [:who_cares])
     end
 
-    @tag :skip
     test "'ignored' fields must be present in new *struct*" do
       new = old = %__MODULE__{name: 1}
-      assertion_fails_with_diagnostic(
-        "Test error: there is no key `:extra` in FlowAssertions.MapTest",
+
+      assertion_fails(
+        ~r/Test error: there is no key `:extra` in FlowAssertions.Map.*Test/,
         fn -> 
           assert_same_map(new, old, ignoring: [:extra])
         end)
     end
 
-    @tag :skip
     test "'except' fields must be present" do
+      
       new = old = %__MODULE__{name: 1}
       assertion_fails_with_diagnostic(
-        "Test error: there is no key `:extra` in FlowAssertions.MapTest",
+        ~r/Test error: there is no key `:extra` in FlowAssertions.Map.*Test/,
         fn -> 
           assert_same_map(new, old, except: [extra: 33])
         end)
