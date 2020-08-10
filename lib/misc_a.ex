@@ -272,12 +272,9 @@ defmodule FlowAssertions.MiscA do
     pattern_string = Macro.to_string(shape)
     quote do 
       eval_once = unquote(value_to_check)
-      assert(match?(unquote(shape), eval_once),
-        """
-        The value doesn't match the given pattern.
-        value:   #{inspect eval_once}
-        pattern: #{unquote(pattern_string)}
-        """)
+      elaborate_assert(match?(unquote(shape), eval_once),
+        Messages.no_match,
+        left: eval_once)
       eval_once
     end
   end

@@ -2,6 +2,7 @@ defmodule FlowAssertions.MiscATest do
   use ExUnit.Case, async: true
   use FlowAssertions
   alias FlowAssertions.Messages
+  alias ExUnit.AssertionError
 
   test "assert_ok" do
     assert assert_ok(:ok) == :ok
@@ -98,17 +99,17 @@ defmodule FlowAssertions.MiscATest do
       |> assert_shape(%__MODULE__{a: 3})
       |> assert_shape(%__MODULE__{a: ^pinned_value})
 
-      # Change these to assertion_fails when that is using the
-      # true `assert_fields`.
-      
-      assertion_fails_with_diagnostic(
-        ["The value doesn't match the given pattern"],
+      assertion_fails(
+        Messages.no_match,
+        # Note that there's no good way to print the failing pattern.
+        [left: actual, right: AssertionError.no_value],
         fn -> 
           assert_shape(actual, %Date{})
         end)
-      
-      assertion_fails_with_diagnostic(
-        ["The value doesn't match the given pattern"],
+
+      assertion_fails(
+        Messages.no_match,
+        [left: actual],
         fn -> 
           assert_shape(actual, %__MODULE__{a: 88})
         end)
@@ -119,15 +120,15 @@ defmodule FlowAssertions.MiscATest do
       assert_shape([1], [_ | _])
       assert_shape([1, 2],  [_ | _])
       assertion_fails_with_diagnostic(
-        ["The value doesn't match the given pattern"],
+        [Messages.no_match],
         fn -> assert_shape(no_op([1]), []) end)
 
       assertion_fails_with_diagnostic(
-        ["The value doesn't match the given pattern"],
+        [Messages.no_match],
         fn -> assert_shape(no_op([1]), [2]) end)
 
       assertion_fails_with_diagnostic(
-        ["The value doesn't match the given pattern"],
+        [Messages.no_match],
         fn -> assert_shape(no_op([1, 2]), [_,  _ , _]) end)
     end
   end
