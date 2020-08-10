@@ -281,15 +281,4 @@ defmodule FlowAssertions.MiscA do
       eval_once
     end
   end
-
-  # ----------------------------------------------------------------------------
-
-
-  # # Note that these return the extracted value_to_check, not the first argument.
-
-  # def with_singleton(%Changeset{} = changeset, fetch_how, field) do
-  #   apply(ChangesetX, fetch_how, [changeset, field])
-  #   |> singleton_content
-  # end
-
 end
