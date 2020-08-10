@@ -1,6 +1,8 @@
 defmodule FlowAssertions.MixProject do
   use Mix.Project
 
+  @github "https://github.com/marick/flow_assertions"
+
   def project do
     [
       app: :flow_assertions,
@@ -12,10 +14,19 @@ defmodule FlowAssertions.MixProject do
 
       # Docs
       name: "Flow Assertions",
-      source_url: "https://github.com/marick/flow_assertions",
+      source_url: @github,
       docs: [
         main: "FlowAssertions",
         extras: ["README.md"],
+      ],
+
+      package: [
+        contributors: ["marick@exampler.com"],
+        maintainers: ["marick@exampler.com"],
+        licenses: ["Unlicense"],
+        links: %{
+          "GitHub" => @github
+        },
       ]
     ]
   end
