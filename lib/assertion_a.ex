@@ -1,4 +1,4 @@
-defmodule FlowAssertions.Define.AssertionA do
+defmodule FlowAssertions.AssertionA do
   
   @moduledoc """
   Assertions used to test other assertions
