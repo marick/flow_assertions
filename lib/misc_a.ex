@@ -38,6 +38,14 @@ defmodule FlowAssertions.MiscA do
   def ok_content(actual),
     do: elaborate_flunk(Messages.not_ok_tuple, left: actual)
 
+
+  @doc """
+  Extract the `:id` field from an {:ok, %{id: id, ...}} value.
+
+  Shorthand for `ok_content(x).id`. 
+  """
+  def ok_id(x), do: ok_content(x).id
+
   @doc """
   Check if value is an `:error` or an `{:error, <content>}` tuple.
 
@@ -277,11 +285,6 @@ defmodule FlowAssertions.MiscA do
   # ----------------------------------------------------------------------------
 
 
-  # def ok_id(x) do
-  #   ok_content(x).id
-  # end
-
-
   # # Note that these return the extracted value_to_check, not the first argument.
 
   # def with_singleton(%Changeset{} = changeset, fetch_how, field) do
@@ -289,9 +292,4 @@ defmodule FlowAssertions.MiscA do
   #   |> singleton_content
   # end
 
-  # def sorted_by_id(container, field) do
-  #   container
-  #   |> Map.get(field)
-  #   |> EnumX.sort_by_id
-  # end
 end
