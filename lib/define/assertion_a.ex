@@ -1,13 +1,13 @@
-defmodule FlowAssertions.AssertionA do
-
-  # Assertions about the behavior of assertions, whee.
+defmodule FlowAssertions.Define.AssertionA do
   
-  import FlowAssertions.Define.Defchain
+  @moduledoc """
+  Assertions used to test other assertions
+  """
+  
   import ExUnit.Assertions
   alias ExUnit.AssertionError
+  import FlowAssertions.Define.Defchain
   alias FlowAssertions.MapA
-  
-
 
   defchain assertion_fails(message, kws \\ [], f) do
     assert_raise(AssertionError, f)

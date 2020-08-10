@@ -6,7 +6,7 @@ defmodule FlowAssertions.Case do
       alias ExUnit.AssertionError
 
       use FlowAssertions
-      import FlowAssertions.AssertionA
+      import FlowAssertions.Define.AssertionA
       alias FlowAssertions.Define.Messages
       
     end  

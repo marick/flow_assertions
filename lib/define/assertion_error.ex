@@ -1,4 +1,4 @@
-defmodule FlowAssertions.Define.Helpers do
+defmodule FlowAssertions.Define.AssertionError do
   import ExUnit.Assertions
   alias ExUnit.AssertionError
   import FlowAssertions.Define.Defchain
@@ -6,7 +6,7 @@ defmodule FlowAssertions.Define.Helpers do
   
   @moduledoc """
   Functions that allow a little more control over what people see when
-  tests fail.
+  tests fail. 
   """
 
   

@@ -1,4 +1,6 @@
-defmodule FlowAssertions.Define.Messages do 
+defmodule FlowAssertions.Define.Messages do
+
+  @moduledoc false
 
   def not_ok, do: "Value is not `:ok` or an `:ok` tuple"
   def not_ok_tuple, do: "Value is not an `:ok` tuple"
