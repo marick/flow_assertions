@@ -266,10 +266,8 @@ defmodule FlowAssertions.MiscA do
   #       left: eval_once, right: unquote(shape))
   #
   # ... because the shape might have a pinned value. 
-
   
   defmacro assert_shape(value_to_check, shape) do 
-    pattern_string = Macro.to_string(shape)
     quote do 
       eval_once = unquote(value_to_check)
       elaborate_assert(match?(unquote(shape), eval_once),
