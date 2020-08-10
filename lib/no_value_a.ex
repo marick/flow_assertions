@@ -1,5 +1,6 @@
 defmodule FlowAssertions.NoValueA do
   use FlowAssertions.Define
+  alias FlowAssertions.Messages
 
   @moduledoc """
   These assertions assume a convention of initializing keys in a map

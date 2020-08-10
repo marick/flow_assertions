@@ -11,7 +11,6 @@ defmodule FlowAssertions.Define do
      
       import FlowAssertions.Define.Defchain
       import FlowAssertions.Define.AssertionError
-      alias FlowAssertions.Define.Messages
     end
   end
 end

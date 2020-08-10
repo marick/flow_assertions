@@ -7,7 +7,7 @@ defmodule FlowAssertions.Case do
 
       use FlowAssertions
       import FlowAssertions.AssertionA
-      alias FlowAssertions.Define.Messages
+      alias FlowAssertions.Messages
       
     end  
   end

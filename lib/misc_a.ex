@@ -1,5 +1,6 @@
 defmodule FlowAssertions.MiscA do
   use FlowAssertions.Define
+  alias FlowAssertions.Messages
 
   @doc """
   Check if a value is an `:ok` or an `{:ok, <content>}` tuple.

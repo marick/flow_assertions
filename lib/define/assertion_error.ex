@@ -2,7 +2,7 @@ defmodule FlowAssertions.Define.AssertionError do
   import ExUnit.Assertions
   alias ExUnit.AssertionError
   import FlowAssertions.Define.Defchain
-  alias FlowAssertions.Define.Messages
+  alias FlowAssertions.Messages
   
   @moduledoc """
   Functions that allow a little more control over what people see when

@@ -1,7 +1,6 @@
 defmodule FlowAssertions.StructA do
   use FlowAssertions.Define
   
-  
   @doc """
   Assert that the value is a particular module's struct.
 

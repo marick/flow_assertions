@@ -1,4 +1,4 @@
-defmodule FlowAssertions.Define.Messages do
+defmodule FlowAssertions.Messages do
 
   @moduledoc false
 

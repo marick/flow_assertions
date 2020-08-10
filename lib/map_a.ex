@@ -1,5 +1,6 @@
 defmodule FlowAssertions.MapA do
   use FlowAssertions.Define
+  alias FlowAssertions.Messages
   alias FlowAssertions.MiscA
 
   @doc """
