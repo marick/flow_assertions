@@ -218,18 +218,13 @@ defmodule FlowAssertions.MiscATest do
   end
 
   test "ok_id" do
-    assert 3 == ok_id({:ok, %{id: 3}})
-    assert_raise(ExUnit.AssertionError, fn ->
-      ok_id({:error, %{no: :id}})
-    end)
-    assert_raise(ExUnit.AssertionError, fn ->
-      ok_id(:ok)
-    end)
-    assert_raise(ExUnit.AssertionError, fn ->
-      ok_id({:error, %{id: :irrelevant}})
-    end)
+    assert ok_id({:ok, %{id: 3}}) == 3
+    assertion_fails(
+      Messages.not_ok_tuple,
+      [left: {:error, %{no: :id}}],
+      fn ->
+        ok_id({:error, %{no: :id}})
+      end)
   end
-
-
 end
 
