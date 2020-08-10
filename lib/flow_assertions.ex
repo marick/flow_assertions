@@ -35,12 +35,11 @@ This is a library of assertions for Elixir's ExUnit. It emphasizes two things:
 
 2. Error messages as helpful as those in the base ExUnit assertions:
 
-   <img src="https://github.com/marick/flow_assertions/blob/main/pics/error2.png"/>
+<img src="https://raw.githubusercontent.com/marick/flow_assertions/main/pics/error2.png"/>
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `flow_assertions` to your list of dependencies in `mix.exs`:
+Add `flow_assertions` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -52,7 +51,18 @@ end
 
 ## Use
 
-*TBD*
+The easiest way is `use FlowAssertions`, which imports the most important modules, which are:
+* `FlowAssertions.MapA`
+* `FlowAssertions.MiscA`
+* `FlowAssertions.EnumA`
+* `FlowAssertions.StructA`
+
+(in roughly that order). 
+
+If you prefer to `alias` rather than `import`, note that all the
+assertion modules end in `A`. That way, there's no conflict between
+the module with map assertions (`FlowAssertions.MapA` and the `Map`
+module itself.
 
 ## Defining your own assertions
 
