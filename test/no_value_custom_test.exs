@@ -3,10 +3,7 @@ defmodule MyApp.Custom do
 end
 
 defmodule FlowAssertions.NoValueCustomTest do
-  use ExUnit.Case, async: true
-  use FlowAssertions
-  import FlowAssertions.AssertionA
-  alias FlowAssertions.Define.Messages
+  use FlowAssertions.Case
   import MyApp.Custom
   
 

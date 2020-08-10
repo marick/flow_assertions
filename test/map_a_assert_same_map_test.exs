@@ -1,8 +1,5 @@
 defmodule FlowAssertions.MapAAssertSameMapTest do
-  use ExUnit.Case, async: true
-  use FlowAssertions
-  alias FlowAssertions.Define.Messages
-  import FlowAssertions.AssertionA
+  use FlowAssertions.Case
 
   defstruct name: nil # Used for typo testing
 

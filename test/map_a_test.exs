@@ -1,8 +1,5 @@
 defmodule FlowAssertions.MapATest do
-  use ExUnit.Case, async: true
-  use FlowAssertions
-  alias FlowAssertions.Define.Messages
-  import FlowAssertions.AssertionA
+  use FlowAssertions.Case
 
   defmodule Permissions do
     defstruct view_reservations: true, other: false
