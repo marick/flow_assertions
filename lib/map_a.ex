@@ -3,6 +3,12 @@ defmodule FlowAssertions.MapA do
   alias FlowAssertions.Messages
   alias FlowAssertions.MiscA
 
+  @moduledoc """
+  Assertions that apply to Maps and structures and sometimes to keyword lists.
+
+  `assert_fields/2` and `assert_same_map/3` are the most important.
+  """
+
   @doc """
   Test the existence and value of multiple fields with a single assertion:
 

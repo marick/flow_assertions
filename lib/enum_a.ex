@@ -1,6 +1,10 @@
 defmodule FlowAssertions.EnumA do
   use FlowAssertions.Define
 
+  @moduledoc """
+  Assertions that apply to Enums.
+  """
+
   @doc """
   Assert that an Enum has only a single element.
   ```

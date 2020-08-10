@@ -1,5 +1,9 @@
 defmodule FlowAssertions.StructA do
   use FlowAssertions.Define
+
+  @moduledoc """
+  Assertions that apply only to structs, not maps.
+  """
   
   @doc """
   Assert that the value is a particular module's struct.

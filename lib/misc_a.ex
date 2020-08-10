@@ -2,6 +2,10 @@ defmodule FlowAssertions.MiscA do
   use FlowAssertions.Define
   alias FlowAssertions.Messages
 
+  @moduledoc """
+  Miscellaneous, including assertions for common idioms like `{:ok, <content>}`
+  """
+  
   @doc """
   Check if a value is an `:ok` or an `{:ok, <content>}` tuple.
 
