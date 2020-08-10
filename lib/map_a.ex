@@ -1,7 +1,7 @@
 defmodule FlowAssertions.MapA do
   import ExUnit.Assertions
   import FlowAssertions.{Defchain,AssertionHelpers}
-  alias FlowAssertions.MiscA
+  alias FlowAssertions.{MiscA,Messages}
   alias ExUnit.AssertionError
 
   @doc """
@@ -74,6 +74,7 @@ defmodule FlowAssertions.MapA do
     assert_fields(kvs, [singleton])
   end
 
+  # ----------------------------------------------------------------------------
   @doc """
     An equality comparison of two maps that gives control over
     which fields should not be compared or should be compared differently.
@@ -143,23 +144,28 @@ defmodule FlowAssertions.MapA do
       Map.take(old, fields_to_compare))
   end
 
+  # ----------------------------------------------------------------------------
 
 
+  @doc """
+  Assert that the value of the map at the key matches a binding form. 
 
+      assert_field_shape(map, :field, %User{})
+      assert_field_shape(map, :field, [_ | _])
 
-  # @doc """
-  # Assert that the value of the map at the key matches a binding form. 
-
-  #     assert_field_shape(map, :field, %User{})
-  #     assert_field_shape(map, :field, [_ | _])
-  # """
-  # defmacro assert_field_shape(map, key, shape) do
-  #   quote do
-  #     eval_once = unquote(map)
-  #     assert_shape(Map.fetch!(eval_once, unquote(key)), unquote(shape))
-  #     eval_once
-  #   end
-  # end
+  See `FlowAssertions.MiscA.assert_shape/2` for more.
+  """
+  defmacro assert_field_shape(map, key, shape) do
+    quote do
+      eval_once = unquote(map)
+      adjust_assertion_error(fn -> 
+        assert_shape(Map.fetch!(eval_once, unquote(key)), unquote(shape))
+      end,
+        message: Messages.no_field_match(unquote(key)))
+      
+      eval_once
+    end
+  end
 
 
   

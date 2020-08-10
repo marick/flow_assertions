@@ -12,4 +12,8 @@ defmodule FlowAssertions.Messages do
   def no_regex_match, do: "Regular expression didn't match"
 
   def stock_equality, do: "Assertion with == failed"
+
+  def no_match, do: "The value doesn't match the given pattern"
+  def no_field_match(field),
+    do: "The value for field `#{inspect field}` doesn't match the given pattern"
 end

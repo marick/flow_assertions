@@ -1,56 +1,52 @@
 defmodule FlowAssertions.MapATest do
   use ExUnit.Case, async: true
   use FlowAssertions
+  alias FlowAssertions.Messages
 
+  defmodule Permissions do
+    defstruct view_reservations: true, other: false
+  end
 
-
-
-
-
-  # describe "shape comparison" do
-  #   test "map-like" do
-  #     assert %PermissionList{}.view_reservations == true # default
+  describe "shape comparison" do
+    test "map-like" do
+      assert %Permissions{}.view_reservations == true # default
       
-  #     (fresh = %{p: %PermissionList{}})
-  #     |> assert_field_shape(:p, %{})
-  #     |> assert_field_shape(:p, %PermissionList{})
-  #     |> assert_field_shape(:p, %PermissionList{view_reservations: true})
-      
-  #     assertion_fails_with_diagnostic(
-  #       ["The value doesn't match the given pattern"],
-  #       fn -> 
-  #         assert_field_shape(fresh, :p, %User{})
-  #       end)
-      
-  #     assertion_fails_with_diagnostic(
-  #       ["The value doesn't match the given pattern"],
-  #       fn -> 
-  #         assert_field_shape(fresh, :p, %PermissionList{view_reservations: false})
-  #       end)
-  #   end
+      fresh = %{p: %Permissions{}}
+
+      fresh
+      |> assert_field_shape(:p, %{})
+      |> assert_field_shape(:p, %Permissions{})
+      |> assert_field_shape(:p, %Permissions{view_reservations: true})
+
+      assertion_fails_with_diagnostic(
+        Messages.no_field_match(:p),
+        fn -> 
+          assert_field_shape(fresh, :p, %Permissions{view_reservations: false})
+        end)
+    end
     
-  #   # This needs to be outside the test to keep compiler from knowing that
-  #   # a match is impossible. It has to be outside the describe because
-  #   # "cannot invoke defp/2 inside function/macro"
-  #   defp singleton(), do: %{p: [1]}
+    # This needs to be outside the test to keep compiler from knowing that
+    # a match is impossible. It has to be outside the describe because
+    # "cannot invoke defp/2 inside function/macro"
+    defp singleton(), do: %{p: [1]}
     
-  #   test "shapes with arrays" do
-  #     singleton = singleton()
-  #     assert_field_shape(singleton, :p, [_])
-  #     assert_field_shape(singleton, :p, [_ | _])
-  #     assertion_fails_with_diagnostic(
-  #       ["The value doesn't match the given pattern"],
-  #       fn -> assert_field_shape(singleton, :p, []) end)
+    test "shapes with arrays" do
+      singleton = singleton()
+      assert_field_shape(singleton, :p, [_])
+      assert_field_shape(singleton, :p, [_ | _])
+      assertion_fails(
+        Messages.no_field_match(:p),
+        fn -> assert_field_shape(singleton, :p, []) end)
       
-  #     assertion_fails_with_diagnostic(
-  #       ["The value doesn't match the given pattern"],
-  #       fn -> assert_field_shape(singleton, :p, [2]) end)
+      assertion_fails(
+        Messages.no_field_match(:p),
+        fn -> assert_field_shape(singleton, :p, [2]) end)
       
-  #     assertion_fails_with_diagnostic(
-  #       ["The value doesn't match the given pattern"],
-  #       fn -> assert_field_shape(singleton, :p, [_,  _ | _]) end)
-  #   end
-  # end
+      assertion_fails(
+        Messages.no_field_match(:p),
+        fn -> assert_field_shape(singleton, :p, [_,  _ | _]) end)
+    end
+  end
 
   # # ----------------------------------------------------------------------------
   # test "assert_nothing and friends" do
