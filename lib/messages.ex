@@ -16,4 +16,11 @@ defmodule FlowAssertions.Messages do
   def no_match, do: "The value doesn't match the given pattern"
   def no_field_match(field),
     do: "The value for field `#{inspect field}` doesn't match the given pattern"
+
+  def not_no_value(key, no_value), 
+    do: "Expected key `#{inspect key}` to be `#{inspect no_value}`."
+
+  def not_value(key), 
+    do: "Expected key `#{inspect key}` to have a value."
+  
 end
