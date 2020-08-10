@@ -1,8 +1,8 @@
-defmodule FlowAssertions.AssertionHelpers do
+defmodule FlowAssertions.Define.Helpers do
   import ExUnit.Assertions
-  import FlowAssertions.Defchain
   alias ExUnit.AssertionError
-  alias FlowAssertions.Messages
+  import FlowAssertions.Define.Defchain
+  alias FlowAssertions.Define.Messages
   
   @moduledoc """
   Functions that allow a little more control over what people see when
@@ -19,7 +19,7 @@ defmodule FlowAssertions.AssertionHelpers do
   elaborate_flunk("the value is wrong", left: value_to_check)
   ```
 
-  Warning: as far as I know, the structure of `AssertionError` is not
+  Warning: as far as I know, the structure of `ExUnit.AssertionError` is not
   guaranteed to be stable.
 
   See also `elaborate_assert/3`.
@@ -30,7 +30,7 @@ defmodule FlowAssertions.AssertionHelpers do
     try do
       flunk message
     rescue
-      ex in ExUnit.AssertionError ->
+      ex in AssertionError ->
         annotated =
           Enum.reduce(opts, ex, fn {k, v}, acc -> Map.put(acc, k, v) end)
         reraise annotated, __STACKTRACE__
@@ -51,7 +51,7 @@ defmodule FlowAssertions.AssertionHelpers do
 
   ```
 
-  Warning: as far as I know, the structure of `AssertionError` is not
+  Warning: as far as I know, the structure of `ExUnit.AssertionError` is not
   guaranteed to be stable.
 
   See also `elaborate_assert/3`.
@@ -78,7 +78,7 @@ defmodule FlowAssertions.AssertionHelpers do
     try do
       f.()
     rescue
-      ex in ExUnit.AssertionError ->
+      ex in AssertionError ->
         Enum.reduce(replacements, ex, fn {key, value}, acc ->
           Map.put(acc, key, value)
         end)

@@ -1,7 +1,5 @@
 defmodule FlowAssertions.MiscA do
-  import FlowAssertions.{Defchain,AssertionHelpers}
-  import ExUnit.Assertions
-  alias FlowAssertions.Messages
+  use FlowAssertions.Define
 
   @doc """
   Check if a value is an `:ok` or an `{:ok, <content>}` tuple.
@@ -184,7 +182,7 @@ defmodule FlowAssertions.MiscA do
       assert_good_enough(actual, expected)
       true
     rescue
-      ExUnit.AssertionError -> false
+      AssertionError -> false
     end
   end
 

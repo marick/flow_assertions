@@ -1,7 +1,5 @@
 defmodule FlowAssertions.NoValueA do
-  import FlowAssertions.{Defchain,AssertionHelpers}
-  alias FlowAssertions.Messages
-  alias ExUnit.AssertionError
+  use FlowAssertions.Define
 
   @moduledoc """
   These assertions assume a convention of initializing keys in a map
@@ -13,7 +11,7 @@ defmodule FlowAssertions.NoValueA do
   :ex_unit_no_meaningful_value. The values are then set by an
   assertion error. Moreover, they can be reset by code that rescues an
   error. Several functions in this package make use of that. See
-  `FlowAssertions.AssertionHelpers.adjust_assertion_error/2` for an
+  `FlowAssertions.Define.Helpers.adjust_assertion_error/2` for an
   example.
 
   Use this module with `use`, providing the no-value value:

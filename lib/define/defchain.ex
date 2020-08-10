@@ -1,4 +1,4 @@
-defmodule FlowAssertions.Defchain do
+defmodule FlowAssertions.Define.Defchain do
 
   @doc """
   Create an assertion that can be chained together with other

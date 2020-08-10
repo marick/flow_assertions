@@ -1,8 +1,9 @@
 defmodule FlowAssertions.MiscATest do
   use ExUnit.Case, async: true
   use FlowAssertions
-  alias FlowAssertions.Messages
+  alias FlowAssertions.Define.Messages
   alias ExUnit.AssertionError
+  import FlowAssertions.AssertionA
 
   test "assert_ok" do
     assert assert_ok(:ok) == :ok
@@ -67,17 +68,17 @@ defmodule FlowAssertions.MiscATest do
       assert "value" == assert_equal("value", "value")
       assert "value" == assert_equals("value", "value")
       
-      assert_raise(ExUnit.AssertionError, fn ->
+      assert_raise(AssertionError, fn ->
         assert_equal(1, 2)
       end)
       
-      assert_raise(ExUnit.AssertionError, fn ->
+      assert_raise(AssertionError, fn ->
         assert_equals(1, 2)
       end)
     end
     
     test "uses `===`" do
-      assert_raise(ExUnit.AssertionError, fn ->
+      assert_raise(AssertionError, fn ->
         assert_equal(1, 1.0)
       end)
     end

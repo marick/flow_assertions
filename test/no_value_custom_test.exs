@@ -5,8 +5,10 @@ end
 defmodule FlowAssertions.NoValueCustomTest do
   use ExUnit.Case, async: true
   use FlowAssertions
-  alias FlowAssertions.Messages
+  import FlowAssertions.AssertionA
+  alias FlowAssertions.Define.Messages
   import MyApp.Custom
+  
 
   # ----------------------------------------------------------------------------
   test "assert_no_value and friends" do

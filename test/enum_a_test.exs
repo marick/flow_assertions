@@ -1,6 +1,7 @@
 defmodule FlowAssertions.EnumATest do
   use ExUnit.Case, async: true
   use FlowAssertions
+  import FlowAssertions.AssertionA
 
   @moduledoc """
   Assertions for values that satisfy the `Enum` protocol.

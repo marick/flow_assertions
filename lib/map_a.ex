@@ -1,8 +1,6 @@
 defmodule FlowAssertions.MapA do
-  import ExUnit.Assertions
-  import FlowAssertions.{Defchain,AssertionHelpers}
-  alias FlowAssertions.{MiscA,Messages}
-  alias ExUnit.AssertionError
+  use FlowAssertions.Define
+  alias FlowAssertions.MiscA
 
   @doc """
   Test the existence and value of multiple fields with a single assertion:

@@ -1,7 +1,8 @@
 defmodule FlowAssertions.NoValueUseTest do
   use ExUnit.Case, async: true
   use FlowAssertions
-  alias FlowAssertions.Messages
+  import FlowAssertions.AssertionA
+  alias FlowAssertions.Define.Messages
   use FlowAssertions.NoValueA, no_value: :_nothing
 
 

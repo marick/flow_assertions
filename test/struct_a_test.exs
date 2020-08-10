@@ -1,6 +1,7 @@
 defmodule FlowAssertions.StructATest do
   use ExUnit.Case, async: true
   use FlowAssertions
+  import FlowAssertions.AssertionA
 
   test "assert_struct_named" do
     date = ~D{2012-12-12}

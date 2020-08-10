@@ -1,6 +1,5 @@
 defmodule FlowAssertions.StructA do
-  import FlowAssertions.Defchain
-  import ExUnit.Assertions
+  use FlowAssertions.Define
   
   
   @doc """

@@ -2,18 +2,20 @@ defmodule FlowAssertions.AssertionA do
 
   # Assertions about the behavior of assertions, whee.
   
-  import FlowAssertions.Defchain
+  import FlowAssertions.Define.Defchain
   import ExUnit.Assertions
+  alias ExUnit.AssertionError
   alias FlowAssertions.MapA
+  
 
 
   defchain assertion_fails(message, kws \\ [], f) do
-    assert_raise(ExUnit.AssertionError, f)
+    assert_raise(AssertionError, f)
     |> MapA.assert_fields(kws ++ [message: message])
   end
 
   defchain assertion_fails_for(under_test, left, message, kws \\ []) do
-    assert_raise(ExUnit.AssertionError, fn -> under_test.(left) end)
+    assert_raise(AssertionError, fn -> under_test.(left) end)
     |> MapA.assert_fields(kws ++ [message: message, left: left])
   end
 
@@ -25,7 +27,7 @@ defmodule FlowAssertions.AssertionA do
 
 
   def assertion_fails_with_diagnostic(messages, f) when is_list(messages) do 
-    exception = assert_raise(ExUnit.AssertionError, f)
+    exception = assert_raise(AssertionError, f)
 
     Enum.map(messages, &(assert_diagnostic exception, &1))
   end

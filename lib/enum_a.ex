@@ -1,6 +1,5 @@
 defmodule FlowAssertions.EnumA do
-  import FlowAssertions.Defchain
-  import ExUnit.Assertions
+  use FlowAssertions.Define
 
   @doc """
   Assert that an Enum has only a single element.

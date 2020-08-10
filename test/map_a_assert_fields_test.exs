@@ -1,6 +1,7 @@
 defmodule FlowAssertions.MapAAssertFieldsTest do
   use ExUnit.Case, async: true
   use FlowAssertions
+  import FlowAssertions.AssertionA
 
   @map %{field1: 1, field2: 2, list: [1, 2], empty: [], name: "cohort_fred"}
 
