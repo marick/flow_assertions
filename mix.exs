@@ -2,6 +2,7 @@ defmodule FlowAssertions.MixProject do
   use Mix.Project
 
   @github "https://github.com/marick/flow_assertions"
+  @version "0.2.0"
 
   def project do
     [
@@ -12,7 +13,7 @@ defmodule FlowAssertions.MixProject do
       """,
       
       app: :flow_assertions,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
