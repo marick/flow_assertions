@@ -44,7 +44,7 @@ Add `flow_assertions` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:flow_assertions, "~> 0.1.0"}
+    {:flow_assertions, "~> 0.1", only: :test},
   ]
 end
 ```
