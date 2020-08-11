@@ -64,6 +64,33 @@ assertion modules end in `A`. That way, there's no conflict between
 the module with map assertions (`FlowAssertions.MapA` and the `Map`
 module itself.
 
+## Reading error output
+
+`ExUnit` has very nice reporting for assertions where a left-hand side is compared to a right-hand side, as in:
+
+
+```elixir
+assert x == y
+```
+
+The error output shows the values of both `x` and `y`, using
+color-coding to highlight differences.
+
+`FlowAssertions` uses that mechanism when appropriate. However, it
+does more complicated comparisons, so the words `left` and `right`
+aren't strictly accurate. So, suppose you're reading errors from code
+like this:
+
+```elixir
+calculation
+|> assert_something(expected)
+|> assert_something_else(expected)
+```
+
+In the output, `left` will refer to some value extracted from
+`calculation` and `right` will refer to a value extracted from
+`expected` (most likely `expected` itself).
+
 ## Defining your own assertions
 
 *TBD*

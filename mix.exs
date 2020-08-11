@@ -5,6 +5,12 @@ defmodule FlowAssertions.MixProject do
 
   def project do
     [
+
+      description: """
+      Assertions tailored for use in pipelines. Common assertions
+      extracted for easy reuse.
+      """,
+      
       app: :flow_assertions,
       version: "0.1.0",
       elixir: "~> 1.10",
