@@ -24,5 +24,10 @@ defmodule FlowAssertions.Messages do
 
   def not_value(key), 
     do: "Expected key `#{inspect key}` to have a value."
-  
+
+
+  def required_key_missing(key, struct) do 
+    struct_name = struct.__struct__
+    "Test error: there is no key `#{inspect key}` in a `#{inspect struct_name}`"
+  end
 end

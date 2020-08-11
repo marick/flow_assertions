@@ -102,7 +102,7 @@ defmodule FlowAssertions.MapAAssertFieldsTest do
         end)
 
       assertion_fails(
-        "Test error: there is no key `:typo` in FlowAssertions.MapAAssertFieldsTest",
+        Messages.required_key_missing(:typo, struct),
         fn ->
           assert_field(struct, typo: 5)
         end)

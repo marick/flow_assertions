@@ -32,7 +32,7 @@ defmodule FlowAssertions.MapAAssertSameMapTest do
       irrelevant = %__MODULE__{name: 1}
 
       assertion_fails(
-        ~r/Test error: there is no key `:extra` in FlowAssertions.Map.*Test/,
+        Messages.required_key_missing(:extra, irrelevant),
         fn -> 
           assert_same_map(irrelevant, irrelevant, ignoring: [:extra])
         end)
@@ -96,11 +96,11 @@ defmodule FlowAssertions.MapAAssertSameMapTest do
     end
 
     test "'except' fields must be present" do
-      new = old = %__MODULE__{name: 1}
+      only = %__MODULE__{name: 1}
       assertion_fails(
-        ~r/Test error: there is no key `:extra` in FlowAssertions.Map.*Test/,
+        Messages.required_key_missing(:extra, only),
         fn -> 
-          assert_same_map(new, old, except: [extra: 33])
+          assert_same_map(only, only, except: [extra: 33])
         end)
     end
   end

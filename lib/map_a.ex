@@ -35,7 +35,7 @@ defmodule FlowAssertions.MapA do
   # Credit: Steve Freeman inspired this.
   defchain assert_fields(kvs, list_or_map) do
     assert_present = fn key ->
-      assert_no_struct_key_typos(kvs, key)
+      struct_must_have_key!(kvs, key)
       elaborate_assert(Map.has_key?(kvs, key),
         "Field `#{inspect key}` is missing",
         left: kvs,
@@ -130,20 +130,20 @@ defmodule FlowAssertions.MapA do
   # So much for the single responsibility principle. But it feels *so good*.
   defp compare_specific_fields(new, old, expected_kvs) do
     expected_keys = Keyword.keys(expected_kvs)
-    assert_no_struct_key_typos(new, expected_keys)
+    struct_must_have_keys!(new, expected_keys)
     assert_fields(new, expected_kvs)
     { Map.drop(new, expected_keys), Map.drop(old, expected_keys)}
   end
 
   defp assert_ignoring_keys(new, old, fields_to_ignore) do
-    assert_no_struct_key_typos(new, fields_to_ignore)
+    struct_must_have_keys!(new, fields_to_ignore)
     elaborate_assert_equal(
       Map.drop(new, fields_to_ignore),
       Map.drop(old, fields_to_ignore))
   end
 
   defp assert_comparing_keys(new, old, fields_to_compare) do
-    assert_no_struct_key_typos(new, fields_to_compare)
+    struct_must_have_keys!(new, fields_to_compare)
     elaborate_assert_equal(
       Map.take(new, fields_to_compare),
       Map.take(old, fields_to_compare))
@@ -171,20 +171,4 @@ defmodule FlowAssertions.MapA do
       eval_once
     end
   end
-
-  # ------------------------------------------------------------------------
-
-  defp assert_no_struct_key_typos(map, keys) when is_list(keys) do
-    for key <- keys, 
-      do: assert_no_struct_key_typos(map, key)
-  end
-      
-  
-  defp assert_no_struct_key_typos(map, key) do
-    if Map.has_key?(map, :__struct__) do
-      assert Map.has_key?(map, key),
-        "Test error: there is no key `#{inspect key}` in #{inspect map.__struct__}"
-    end
-  end
-  
 end

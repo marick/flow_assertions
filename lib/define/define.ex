@@ -7,7 +7,7 @@ defmodule FlowAssertions.Define do
   * `ExUnit.Assertions`
   * `ExUnit.AssertionError` (as an alias)
   * `FlowAssertions.Define.Defchain` (the `defchain` macro)
-  * `FlowAssertions.Define.AssertionError`
+  * `FlowAssertions.Define.BodyParts` (functions useful in assertion bodies)
   """
 
   defmacro __using__(_) do
@@ -16,7 +16,7 @@ defmodule FlowAssertions.Define do
       alias ExUnit.AssertionError 
      
       import FlowAssertions.Define.Defchain
-      import FlowAssertions.Define.AssertionError
+      import FlowAssertions.Define.BodyParts
     end
   end
 end
