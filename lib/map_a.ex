@@ -1,7 +1,7 @@
 defmodule FlowAssertions.MapA do
   use FlowAssertions.Define
   alias FlowAssertions.Messages
-  alias FlowAssertions.MiscA
+  alias FlowAssertions.{MiscA,EnumA}
 
   @moduledoc """
   Assertions that apply to Maps and structures and sometimes to keyword lists.
@@ -170,5 +170,35 @@ defmodule FlowAssertions.MapA do
       
       eval_once
     end
+  end
+
+
+  @doc """
+  Take a map and a field. Return the single element in the field's value.
+
+      with_singleton_content(%{a: [1]}, :a)   # returns `1`
+
+  This is typically used with fields that take list values. Often,
+  you only want to test the empty list and a singleton list.
+  (When testing functions that produce their values with `Enum.map/2` or `for`,
+  creating a second list element gains you nothing.)
+  Using `with_singleton_content`, it's
+  convenient to apply assertions to the single element:
+
+      view_model
+      |> assert_assoc_loaded(:service_gaps)
+      |> with_singleton_content(:service_gaps)
+         |> assert_shape(%VM.ServiceGap{})
+         |> Ex.Datespan.assert_datestrings(:first)
+
+  If `field` does not exist or isn't an `Enum`, `with_singleton_content` will fail in
+  the same way `FlowAssertions.EnumA.singleton_content/1` does.
+  """
+  def with_singleton_content(map, field) do
+    adjust_assertion_error(fn -> 
+      map
+      |> Map.get(field)
+      |> EnumA.singleton_content
+    end, message: Messages.expected_1_element_field(field))
   end
 end
