@@ -1,5 +1,6 @@
 defmodule FlowAssertions.StructA do
   use FlowAssertions.Define
+  alias FlowAssertions.Messages
 
   @moduledoc """
   Assertions that apply only to structs, not maps.
@@ -18,21 +19,20 @@ defmodule FlowAssertions.StructA do
   for building up larger assertion functions.
   
   """ 
-  defchain assert_struct_named(value_to_check, module_name)
-  when is_struct(value_to_check) do
-    actual_name = value_to_check.__struct__
-    assert actual_name == module_name,
-      "Expected a `#{inspect module_name}` but got a `#{inspect actual_name}`"
-  end
+  defchain assert_struct_named(value_to_check, module_name) do 
+    boom! = fn msg ->
+      elaborate_flunk(msg, left: value_to_check)
+    end
 
-  def assert_struct_named(value_to_check, module_name)
-  when is_map(value_to_check) do
-    flunk """
-    Expected a `#{inspect module_name}` but got a plain Map:
-    #{inspect value_to_check}
-    """
+    cond do
+      is_struct(value_to_check) ->
+        actual_name = value_to_check.__struct__
+        if actual_name != module_name, 
+          do: boom!.(Messages.wrong_struct_name(actual_name, module_name))
+      is_map(value_to_check) ->
+        boom!.(Messages.map_not_struct(module_name))
+      :else ->
+        boom!.(Messages.very_wrong_struct(module_name))
+    end
   end
-
-  def assert_struct_named(value_to_check, module_name),
-    do: flunk "Expected a `#{inspect module_name}` but got `#{value_to_check}`"
 end

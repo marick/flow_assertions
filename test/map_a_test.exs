@@ -16,7 +16,7 @@ defmodule FlowAssertions.MapATest do
       |> assert_field_shape(:p, %Permissions{})
       |> assert_field_shape(:p, %Permissions{view_reservations: true})
 
-      assertion_fails_with_diagnostic(
+      assertion_fails(
         Messages.no_field_match(:p),
         fn -> 
           assert_field_shape(fresh, :p, %Permissions{view_reservations: false})

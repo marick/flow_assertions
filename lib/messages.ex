@@ -34,4 +34,13 @@ defmodule FlowAssertions.Messages do
     struct_name = struct.__struct__
     "Test error: there is no key `#{inspect key}` in a `#{inspect struct_name}`"
   end
+
+  def wrong_struct_name(actual_name, expected_name),
+    do: "Expected a `#{inspect expected_name}` but got a `#{inspect actual_name}`"
+
+  def map_not_struct(expected_name),
+    do: "Expected a `#{inspect expected_name}` but got a plain Map"
+
+  def very_wrong_struct(expected_name),
+    do: "Expected a `#{inspect expected_name}`"
 end
