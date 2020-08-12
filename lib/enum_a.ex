@@ -1,5 +1,6 @@
 defmodule FlowAssertions.EnumA do
   use FlowAssertions.Define
+  alias FlowAssertions.Messages
 
   @moduledoc """
   Assertions that apply to Enums.
@@ -38,21 +39,17 @@ defmodule FlowAssertions.EnumA do
   %{} |> assert_empty   # true
   ```
   """
-  defchain assert_empty(value_to_check) do
-    if not Enum.empty?(value_to_check),
-      do: flunk("Expected an empty Enum")
+  defchain assert_empty(value_to_check) do 
+    elaborate_assert(Enum.empty?(value_to_check),
+      Messages.expected_no_element,
+      left: value_to_check)
   end
-
-  
   
   # ----------------------------------------------------------------------------
   defp singleton_or_flunk(enum) do 
     case Enum.into(enum, []) do
       [x] -> x
-      _ -> flunk """
-           Expected a single element:
-           #{inspect enum}
-           """
+      left -> elaborate_flunk(Messages.expected_1_element, left: left)
     end
   end
 end  

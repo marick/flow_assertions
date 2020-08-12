@@ -25,6 +25,10 @@ defmodule FlowAssertions.Messages do
   def not_value(key), 
     do: "Expected key `#{inspect key}` to have a value."
 
+  def expected_1_element, do: "Expected a single element"
+  def expected_no_element, do: "Expected an empty Enum"
+  def expected_1_element_field(key),
+    do: "Expected field `#{inspect key}` to be a single element Enum"
 
   def required_key_missing(key, struct) do 
     struct_name = struct.__struct__
