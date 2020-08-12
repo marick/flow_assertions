@@ -29,7 +29,9 @@ This is a library of assertions for Elixir's ExUnit. It emphasizes two things:
       assert changes.out_of_service_datestring == @iso_date_2
       assert changes.reason == "reason"
       ```
-   
+
+   The key point here is that all of the `assert_*` functions in this package
+   return their first argument to be used with later chained functions.
 
 2. Error messages as helpful as those in the base ExUnit assertions:
 
