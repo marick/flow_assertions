@@ -114,23 +114,4 @@ defmodule FlowAssertions.AssertionA do
     assert_raise(AssertionError, fn -> under_test.(left) end)
     |> MapA.assert_fields(kws ++ [message: message, left: left])
   end
-
-
-  ##### OLD
-
-  @doc false
-  defchain assert_diagnostic(exception, message),
-    do: assert exception.message =~ message
-
-
-  @doc false
-  def assertion_fails_with_diagnostic(messages, f) when is_list(messages) do 
-    exception = assert_raise(AssertionError, f)
-
-    Enum.map(messages, &(assert_diagnostic exception, &1))
-  end
-
-  @doc false
-  def assertion_fails_with_diagnostic(message, f), 
-    do: assertion_fails_with_diagnostic([message], f)
 end

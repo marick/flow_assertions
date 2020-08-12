@@ -116,16 +116,21 @@ defmodule FlowAssertions.MiscATest do
       assert_shape([1], [_])
       assert_shape([1], [_ | _])
       assert_shape([1, 2],  [_ | _])
-      assertion_fails_with_diagnostic(
-        [Messages.no_match],
-        fn -> assert_shape(no_op([1]), []) end)
+      assertion_fails(
+        Messages.no_match,
+        [left: [1]],
+        fn ->
+          assert_shape(no_op([1]), [])
+        end)
 
-      assertion_fails_with_diagnostic(
-        [Messages.no_match],
+      assertion_fails(
+        Messages.no_match,
+        [left: [1]],
         fn -> assert_shape(no_op([1]), [2]) end)
 
-      assertion_fails_with_diagnostic(
-        [Messages.no_match],
+      assertion_fails(
+        Messages.no_match,
+        [left: [1, 2]],
         fn -> assert_shape(no_op([1, 2]), [_,  _ , _]) end)
     end
   end
