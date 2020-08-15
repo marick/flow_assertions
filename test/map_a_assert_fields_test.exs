@@ -6,7 +6,7 @@ defmodule FlowAssertions.MapAAssertFieldsTest do
   describe "`assert_fields` with keyword lists" do
     test "missing field" do
       checks = [field1: 1,  missing_field: 5]
-      assertion_fails("Field `:missing_field` is missing",
+      assertion_fails(Messages.field_missing(:missing_field),
         [left: @map, right: checks],
         fn -> 
           assert_fields(@map, checks)

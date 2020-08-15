@@ -30,6 +30,8 @@ defmodule FlowAssertions.Messages do
   def expected_1_element_field(key),
     do: "Expected field `#{inspect key}` to be a single element Enum"
 
+
+
   def required_key_missing(key, struct) do 
     struct_name = struct.__struct__
     "Test error: there is no key `#{inspect key}` in a `#{inspect struct_name}`"
@@ -45,4 +47,5 @@ defmodule FlowAssertions.Messages do
     do: "Expected a `#{inspect expected_name}`"
 
   def wrong_field_value(key), do: "Field `#{inspect key}` has the wrong value"
+  def field_missing(field), do: "Field `#{inspect field}` is missing"
 end
