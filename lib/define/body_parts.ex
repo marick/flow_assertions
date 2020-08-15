@@ -61,6 +61,13 @@ defmodule FlowAssertions.Define.BodyParts do
     if !value, do: elaborate_flunk(message, opts)
   end
 
+
+  @doc """
+  `elaborate_assert/3`, except the value is expected to be falsy.
+  """
+  defchain elaborate_refute(value, message, opts),
+    do: elaborate_assert(!value, message, opts)
+
   @doc """
   This replicates the diagnostic output from `assert a == b`, except for the
   code snippet that's reported.
