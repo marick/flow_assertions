@@ -47,7 +47,7 @@ defmodule FlowAssertions.MapA do
       adjust_assertion_error(fn ->
         MiscA.assert_good_enough(Map.get(kvs, key), expected)
       end, 
-        message: "Field `#{inspect key}` has the wrong value",
+        message: Messages.wrong_field_value(key),
         expr: AssertionError.no_value)
     end
     
@@ -120,6 +120,8 @@ defmodule FlowAssertions.MapA do
     {remaining_new, remaining_old} = 
       compare_specific_fields(new, old, get_list.(:except))
 
+    
+
     if Keyword.has_key?(opts, :comparing) do
       assert_comparing_keys(remaining_new, remaining_old, get_list.(:comparing))
     else
@@ -132,6 +134,7 @@ defmodule FlowAssertions.MapA do
     expected_keys = Keyword.keys(expected_kvs)
     struct_must_have_keys!(new, expected_keys)
     assert_fields(new, expected_kvs)
+
     { Map.drop(new, expected_keys), Map.drop(old, expected_keys)}
   end
 

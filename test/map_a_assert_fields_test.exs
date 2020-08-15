@@ -14,7 +14,7 @@ defmodule FlowAssertions.MapAAssertFieldsTest do
     end
 
     test "how a bad value is reported" do
-      assertion_fails("Field `:field2` has the wrong value",
+      assertion_fails(Messages.wrong_field_value(:field2), 
         [left: 2, right: 3838],
         fn -> 
           assert_fields(@map, field1: 1,  field2: 3838)
@@ -34,7 +34,7 @@ defmodule FlowAssertions.MapAAssertFieldsTest do
       assert assert_fields(@map, empty: &Enum.empty?/1) == @map
 
       # A little annoying that the predicate isn't shown in the `:right`.
-      assertion_fails("Field `:list` has the wrong value",
+      assertion_fails(Messages.wrong_field_value(:list),
         [left: @map.list],
         fn ->
           assert_fields(@map, list: &Enum.empty?/1)
@@ -44,7 +44,7 @@ defmodule FlowAssertions.MapAAssertFieldsTest do
     test "can check a field against a regular expression" do
       assert assert_fields(@map, name: ~r/cohort/) == @map
 
-      assertion_fails("Field `:name` has the wrong value",
+      assertion_fails(Messages.wrong_field_value(:name),
         [left: @map.name, right: ~r/_cohort/],
         fn ->
           assert_fields(@map, name: ~r/_cohort/)
@@ -76,8 +76,7 @@ defmodule FlowAssertions.MapAAssertFieldsTest do
   test "a mixture of value and existence checks" do
     assert assert_fields(@map, [field1: 1] ++ [:field2]) == @map
 
-    assertion_fails(
-      "Field `:field1` has the wrong value",
+    assertion_fails(Messages.wrong_field_value(:field1),
       fn -> 
         assert_fields(@map, [{:field1, 33}, :field2])
       end)
@@ -141,8 +140,7 @@ defmodule FlowAssertions.MapAAssertFieldsTest do
 
       assert_fields(bigger, smaller)
 
-      assertion_fails(
-        "Field `:a` has the wrong value",
+      assertion_fails(Messages.wrong_field_value(:a),
         fn -> 
           assert_fields(bigger, %{a: 3})
         end)
@@ -154,8 +152,7 @@ defmodule FlowAssertions.MapAAssertFieldsTest do
 
       assert_fields(bigger, smaller)
 
-      assertion_fails(
-        ~s/Field `"a"` has the wrong value/,
+      assertion_fails(Messages.wrong_field_value("a"),
         fn -> 
           assert_fields(bigger, %{"a" => 3})
         end)

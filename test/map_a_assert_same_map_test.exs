@@ -73,8 +73,7 @@ defmodule FlowAssertions.MapAAssertSameMapTest do
 
       assert_same_map(new, old, except: [important_change: 2])
 
-      assertion_fails(
-        "Field `:important_change` has the wrong value",
+      assertion_fails(Messages.wrong_field_value(:important_change),
         [left: 2, right: 33],
         fn ->
           assert_same_map(new, old, except: [important_change: 33])
@@ -87,8 +86,7 @@ defmodule FlowAssertions.MapAAssertSameMapTest do
 
       assert_same_map(new, old, except: [important_change: &Enum.empty?/1])
 
-      assertion_fails(
-        "Field `:important_change` has the wrong value",
+      assertion_fails(Messages.wrong_field_value(:important_change),
         [left: [1]],
         fn -> 
           assert_same_map(old, old, except: [important_change: &Enum.empty?/1])

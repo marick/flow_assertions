@@ -43,4 +43,6 @@ defmodule FlowAssertions.Messages do
 
   def very_wrong_struct(expected_name),
     do: "Expected a `#{inspect expected_name}`"
+
+  def wrong_field_value(key), do: "Field `#{inspect key}` has the wrong value"
 end
