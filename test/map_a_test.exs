@@ -50,11 +50,26 @@ defmodule FlowAssertions.MapATest do
     assert with_singleton_content(%{a: [1]}, :a) == 1
 
     assertion_fails(
-      Messages.expected_1_element_field(:a),
+      Messages.expected_1_element_field("a"),
       [left: []],
       fn -> 
-        assert with_singleton_content(%{a: []}, :a) == 1
+        with_singleton_content(%{"a" => []}, "a")
       end)
+
+    assertion_fails(
+      Messages.expected_1_element_field(:a),
+      [left: nil],
+      fn -> 
+        with_singleton_content(%{}, :a)
+      end)
+
+    assertion_fails(
+      Messages.expected_1_element_field(:a),
+      [left: 3],
+      fn ->
+        with_singleton_content(%{a: 3}, :a)
+      end)
+      
   end
 end
 

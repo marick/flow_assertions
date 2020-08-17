@@ -57,6 +57,24 @@ defmodule FlowAssertions.EnumATest do
         Messages.expected_1_element,
         fn -> singleton_content(%{a: 1, b: 2}) end)
     end
+
+    test "non-Enum case fails" do
+      assertion_fails(Messages.not_enumerable,
+        [left: "sososo"],
+        fn ->
+          singleton_content("sososo")
+        end)
+    end
+  end
+
+  test "assert_enumerable" do
+    assert assert_enumerable([]) == []
+
+    assertion_fails(Messages.not_enumerable,
+      [left: 1],
+      fn -> 
+        assert_enumerable(1)
+      end)
   end
 
   test "assert_empty" do
@@ -70,6 +88,14 @@ defmodule FlowAssertions.EnumATest do
     assertion_fails(
       Messages.expected_no_element,
       fn -> assert_empty(%{a: 2}) end)
-    end
+
+    assertion_fails(
+      Messages.not_enumerable,
+      [left: 3],
+      fn -> 
+        assert_empty(3)
+      end)
+  end
+
 end
   

@@ -48,4 +48,6 @@ defmodule FlowAssertions.Messages do
 
   def wrong_field_value(key), do: "Field `#{inspect key}` has the wrong value"
   def field_missing(field), do: "Field `#{inspect field}` is missing"
+
+  def not_enumerable, do: "Expected an `Enumerable`"
 end
