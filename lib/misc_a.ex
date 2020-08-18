@@ -1,6 +1,8 @@
 defmodule FlowAssertions.MiscA do
   use FlowAssertions.Define
   alias FlowAssertions.Messages
+  alias FlowAssertions.Checkers
+  alias FlowAssertions.Define.Defchecker
 
   @moduledoc """
   Miscellaneous, including assertions for common idioms like `{:ok, <content>}`
@@ -215,10 +217,14 @@ defmodule FlowAssertions.MiscA do
   """
   defchain assert_good_enough(value_to_check, predicate)
   when is_function(predicate) and not is_function(value_to_check) do
-    elaborate_assert(
-      predicate.(value_to_check),
-      Messages.failed_predicate(predicate),
-      left: value_to_check)
+    case predicate.(value_to_check) do
+      %Defchecker.Failure{} = failure ->
+        Defchecker.flunk(failure)
+      result -> 
+        elaborate_assert(result,
+          Messages.failed_predicate(predicate),
+          left: value_to_check)
+    end
   end
 
   defchain assert_good_enough(%Regex{} = left, %Regex{} = right) do

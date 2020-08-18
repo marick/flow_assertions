@@ -109,6 +109,7 @@ In the output, `left` will refer to some value extracted from
       import FlowAssertions.MapA
       import FlowAssertions.MiscA
       import FlowAssertions.StructA
+      import FlowAssertions.Checkers
     end
   end
 end

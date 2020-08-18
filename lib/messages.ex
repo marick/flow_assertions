@@ -13,6 +13,10 @@ defmodule FlowAssertions.Messages do
   def failed_predicate(predicate), do: "Predicate #{inspect predicate} failed"
   def no_regex_match, do: "Regular expression didn't match"
 
+  # Note that the lack of `inspect` is deliberate.
+  def failed_checker(name), do: "Checker `#{name}` failed"
+  
+
   def stock_equality, do: "Assertion with == failed"
 
   def no_match, do: "The value doesn't match the given pattern"
