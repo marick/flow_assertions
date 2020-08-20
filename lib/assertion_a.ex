@@ -74,8 +74,8 @@ defmodule FlowAssertions.AssertionA do
         ...
   ```
 
-  The value returned when the assertion *doesn't* fail is undefined.
-  `assertion_fails_for/4` is more convenient for chaining. 
+  If the assertion correctly fails, the return value is the
+  `ExUnit.AssertionError` the assertion created.
   """
   def assertion_fails(message, kws \\ [], f) do
     assert_raise(AssertionError, f)

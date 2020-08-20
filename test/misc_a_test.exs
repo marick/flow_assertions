@@ -1,30 +1,40 @@
 defmodule FlowAssertions.MiscATest do
   use FlowAssertions.Case
+  import FlowAssertions.Define.Tabular
 
   test "assert_ok" do
-    assert assert_ok(:ok) == :ok
-    assert assert_ok({:ok, :not_examined}) == {:ok, :not_examined}
+    a = assertion_runners_for(&assert_ok/1) |> left_is_actual
 
-    (&assert_ok &1)
-    |> assertion_fails_for(:error, Messages.not_ok)
+    :ok                  |> a.pass.()
+    {:ok, :not_examined} |> a.pass.()
+
+    :error               |> a.fail.(Messages.not_ok)
   end
+
+# Old code for talk
+#    assert assert_ok(:ok) == :ok
+#    assert assert_ok({:ok, :not_examined}) == {:ok, :not_examined}
+#
+#    (&assert_ok &1)
+#    |> assertion_fails_for(:error, Messages.not_ok)
+  
 
 
   test "ok_content" do
-    assert ok_content({:ok, "content"}) == "content"
-    msg = Messages.not_ok_tuple
-
-    (&ok_content/1)
-    |> assertion_fails_for(:ok, msg)
-    |> assertion_fails_for({:error, "content"}, msg)
+    a = content_runners_for(&ok_content/1) |> left_is_actual
+    
+    {:ok, "content"}    |> a.pass.("content")
+    :ok                 |> a.fail.(Messages.not_ok_tuple)
+    {:error, "content"} |> a.fail.(Messages.not_ok_tuple)
   end
 
   test "assert_error" do
-    assert assert_error(:error) == :error
-    assert assert_error({:error, :not_examined}) == {:error, :not_examined}
+    a = assertion_runners_for(&assert_error/1) |> left_is_actual
 
-    (&assert_error/1)
-    |> assertion_fails_for({:ok, 5}, Messages.not_error)
+    :error                     |> a.pass.()
+    {:error, :not_examined}    |> a.pass.()
+
+    {:ok, 5}                   |> a.fail.(Messages.not_error)
   end
 
   test "error_content" do
