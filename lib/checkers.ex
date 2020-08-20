@@ -1,64 +1,58 @@
 defmodule FlowAssertions.Checkers do
   alias FlowAssertions.Define.Defchecker.Failure
   import FlowAssertions.Define.Defchecker
-  import ExUnit.Assertions
   alias FlowAssertions.Messages
 
   @moduledoc """
   Functions that create handy predicates for use with `FlowAssertions.MiscA.assert_good_enough/2`
+
+
+      actual
+      |> assert_good_enough( in_any_order([1, 2, 3]))
+
+  "Checkers" typically provide custom failure messages that are better than
+  what a simple predicate would provide.
+
+  This module is a work in progress.
   """
 
   @doc """
-  TBD
+  Check equality of Enumerables, ignoring order.
+
+      actual
+      |> assert_good_enough( in_any_order([1, 2, 3]))
+
+  In case of error, the actual and expected enumerables are sorted by
+  by their `Kernel.inspect/1` representation. In combination with ExUnit's
+  color-coded differences, that makes it easier to see what went wrong.
+  
   """
 
-  # def in_any_order(expected) do
-  #   id = fn x -> x end
-  #   fn actual ->
-  #     cond do 
-  #       length(expected) != length(actual) ->
-  #         true
-          
-  #     else
-  #       group_actual = Enum.group_by(actual, id)
-  #       group_expected = Enum.group_by(expected, id)
-  #       group_actual == group_expected
-  #     end
-  #   end
-  # end
-      
-  
-  
   def in_any_order(expected) do
     fn actual ->
-      id = fn x -> x end
-      group_actual = Enum.group_by(actual, id)
-      group_expected = Enum.group_by(expected, id)
-
-      cond do
-        length(actual) != length(expected) ->
-          failure =
-            Failure.new(
-              mfa: {__MODULE__, :in_any_order, [expected]},
-              actual: actual)
-          fail_helpfully(failure, Messages.different_length_collections,
-            left: alphabetical(actual), right: alphabetical(expected))
-        group_actual != group_expected ->
-          failure =
-            Failure.new(
-              mfa: {__MODULE__, :in_any_order, [expected]},
-              actual: actual)
-          fail_helpfully(failure, Messages.different_elements_collections,
-            left: alphabetical(actual), right: alphabetical(expected))
-        :else ->
-          true
+      assert = fn value, message ->
+        if !value do
+          Failure.boa(actual, :in_any_order, expected)
+          |> fail_helpfully(message, alphabetical_enums(actual, expected))
+        end
       end
+
+      id = fn x -> x end
+      unordered = &(Enum.group_by(&1, id))
+
+      assert.(length(actual) == length(expected),
+        Messages.different_length_collections)
+
+      assert.(unordered.(actual) == unordered.(expected),
+        Messages.different_elements_collections)
+      true
     end
   end
 
-  defp alphabetical(xs) do 
-    Enum.sort_by(xs, &to_string/1)
-  end
+  defp alphabetical_enums(actual, expected),
+    do: [left: alphabetical(actual), right: alphabetical(expected)]
+  defp alphabetical(xs), do: Enum.sort_by(xs, &to_string/1)
+
     
 
   @doc """
@@ -68,21 +62,21 @@ defmodule FlowAssertions.Checkers do
     fn actual ->
       if String.contains?(actual, expected),
         do: true,
-        else: Failure.new(mfa: {__MODULE__, :contains, [expected]}, actual: actual)
+        else: Failure.boa(actual, :contains, expected)
     end
   end
 
-  m = quote do 
-    defchecker contains2(expected) do
-      fn actual -> String.contains?(actual, expected) end
-    end
-  end
+  # m = quote do 
+  #   defchecker contains2(expected) do
+  #     fn actual -> String.contains?(actual, expected) end
+  #   end
+  # end
 
-  IO.puts Macro.expand_once(m, __ENV__) |> Macro.to_string
+  # IO.puts Macro.expand_once(m, __ENV__) |> Macro.to_string
 
 
-    defchecker contains2(expected) do
-      fn actual -> String.contains?(actual, expected) end
-    end
+    # defchecker contains2(expected) do
+    #   fn actual -> String.contains?(actual, expected) end
+    # end
   
 end  

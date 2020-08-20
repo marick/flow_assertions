@@ -1,12 +1,12 @@
  defmodule FlowAssertions.CheckersTest do
   use FlowAssertions.Case
-  alias FlowAssertions.Define.Defchecker
-  import FlowAssertions.Checkers  
+  import FlowAssertions.Checkers
+  alias FlowAssertions.Define.Tabular
 
   describe "`in_any_order`" do
     #    [1, 3, 2]
     #    |> assert_good_enough( in_any_order([1, 2, 3]))
-    setup do: [runners: Defchecker.make_runners(&in_any_order/1)]
+    setup do: [runners: Tabular.runners_for(&in_any_order/1)]
     
     test "successful cases", %{runners: a} do
         # actual   checked against

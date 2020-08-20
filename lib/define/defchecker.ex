@@ -6,16 +6,21 @@ defmodule FlowAssertions.Define.Defchecker do
 
   
   @moduledoc """
+  Code to support writing checkers like the ones in `FlowAssertions.Checkers`.
+
+  Note that this is a work in progress, so be prepared for change.
   """
 
   defmodule Failure do
     defstruct mfa: {nil, nil, []}, actual: nil
 
-    def new(opts) do
+    # A "by order of arguments" or "boa" constructor.
+    # A shoutout to Guy Steele's /Common Lisp: The Language/.
+    # The order is the order in a pipelined call.
+    def boa(actual, name, expected) do
       %__MODULE__{
-        mfa: Keyword.fetch!(opts, :mfa),
-        actual: Keyword.fetch!(opts, :actual)
-      }
+        mfa: {"ignored", name, [expected]},
+        actual: actual}
     end
   end
 
@@ -44,7 +49,9 @@ defmodule FlowAssertions.Define.Defchecker do
     "#{function}(#{printable_args})"
   end
 
-  # This hasn't been made to work with `when` annotations.
+  # Sketch for if it becomes useful to define checkers.
+  # This hasn't been made to work with `when` annotations. See `defchain`.
+  @doc false
   defmacro defchecker(head, do: predicate) do
     {name, _, args} = head
     quote do
@@ -59,32 +66,4 @@ defmodule FlowAssertions.Define.Defchecker do
       end
     end
   end
-
-
-
-  def make_runners(checker) do
-    run = fn [actual, expected] ->
-      MiscA.assert_good_enough(actual, checker.(expected))
-    end
-    fail = fn
-      condensed_assertion, %Regex{} = regex ->
-        assertion_fails(regex, fn -> run.(condensed_assertion) end)
-      condensed_assertion, message when is_binary(message) ->
-        assertion_fails(message, fn -> run.(condensed_assertion) end)
-      condensed_assertion, opts when is_list(opts) ->
-        assertion_fails(~r/.*/, opts, fn -> run.(condensed_assertion) end)
-    end
-
-    %{pass: run,
-      fail: fail,
-      view:    fn args ->          run.(args) end,
-      view_:   fn args, _ ->       run.(args) end,
-      view__:  fn args, _, _ ->    run.(args) end,
-      view___: fn args, _, _, _ -> run.(args) end,
-    }
-  end
-
-  
-    
-  
 end
