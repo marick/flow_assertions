@@ -219,7 +219,7 @@ defmodule FlowAssertions.MiscA do
   when is_function(predicate) and not is_function(value_to_check) do
     case predicate.(value_to_check) do
       %Defchecker.Failure{} = failure ->
-        Defchecker.flunk(failure)
+        Defchecker.fail_helpfully(failure, left: value_to_check)
       result -> 
         elaborate_assert(result,
           Messages.failed_predicate(predicate),

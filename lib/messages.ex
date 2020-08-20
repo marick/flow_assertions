@@ -54,4 +54,8 @@ defmodule FlowAssertions.Messages do
   def field_missing(field), do: "Field `#{inspect field}` is missing"
 
   def not_enumerable, do: "Expected an `Enumerable`"
+
+  def different_length_collections, do: "The two collections have different lengths"
+  def different_elements_collections, do: "The two collections have different elements"
+  
 end
