@@ -3,6 +3,7 @@ defmodule FlowAssertions.MiscA do
   alias FlowAssertions.Messages
   alias FlowAssertions.Checkers
   alias FlowAssertions.Define.Defchecker
+  alias FlowAssertions.StructA
 
   @moduledoc """
   Miscellaneous, including assertions for common idioms like `{:ok, <content>}`
@@ -43,9 +44,25 @@ defmodule FlowAssertions.MiscA do
   def ok_content(actual),
     do: elaborate_flunk(Messages.not_ok_tuple, left: actual)
 
+  @doc """
+  Combines `ok_content/1` and `FlowAssertions.StructA.assert_struct_named/2`. 
+
+  ```
+  |> VM.accept_form(params)
+  |> ok_content(Changeset)
+  |> assert_no_changes
+  ```
+  In addition to checking that the value is an `{:ok, content}` tuple, it
+  checks that the `content` is a value of the named struct before returning it.
+  """
+  def ok_content(actual, struct_name) do
+    ok_content(actual)
+    |> StructA.assert_struct_named(struct_name)
+  end
+
 
   @doc """
-  Extract the `:id` field from an {:ok, %{id: id, ...}} value.
+  Extract the `:id` field from an `{:ok, %{id: id, ...}}` value.
 
   Shorthand for `ok_content(x).id`. 
   """

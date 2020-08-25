@@ -11,19 +11,25 @@ defmodule FlowAssertions.MiscATest do
     :error               |> a.fail.(Messages.not_ok)
   end
 
-# Old code for talk
-#    assert assert_ok(:ok) == :ok
-#    assert assert_ok({:ok, :not_examined}) == {:ok, :not_examined}
-#
-#    (&assert_ok &1)
-#    |> assertion_fails_for(:error, Messages.not_ok)
-  
-
-
   test "ok_content" do
     a = content_runners_for(&ok_content/1) |> left_is_actual
     
     {:ok, "content"}    |> a.pass.("content")
+    :ok                 |> a.fail.(Messages.not_ok_tuple)
+    {:error, "content"} |> a.fail.(Messages.not_ok_tuple)
+  end
+
+  test "ok_content/2 with struct name argument" do
+    a = content_runners_for(&(ok_content &1, Date))
+    date = ~D[2001-01-01]
+    datetime = ~N[2001-01-01 01:01:01.000]
+    
+    {:ok, date}     |> a.pass.(date)
+    {:ok, datetime} |> a.fail.(Messages.wrong_struct_name(NaiveDateTime, Date))
+                    |> a.plus.(left: datetime)
+    
+
+    # As before
     :ok                 |> a.fail.(Messages.not_ok_tuple)
     {:error, "content"} |> a.fail.(Messages.not_ok_tuple)
   end
@@ -46,19 +52,20 @@ defmodule FlowAssertions.MiscATest do
     |> assertion_fails_for({:ok, "content"}, msg)
   end
 
-  test "assert_error_2" do
-    valid = {:error, :expected_error_type, "content"}
-    assert assert_error2(valid, :expected_error_type) == valid
+  test "assert_error2" do
+    run = fn actual -> assert_error2(actual, :expected_error_type) end
+    a = assertion_runners_for(run) |> left_is_actual
+    
+    wrong_shape_message = Messages.not_error_3tuple(:expected_error_type)
+    wrong_subtype_message =
+      Messages.bad_error_3tuple_subtype(:wrong_type, :expected_error_type)
 
-    bad_form_msg = Messages.not_error_3tuple(:expected_error_type)
+    {:error, :expected_error_type, "irrelevant"} |> a.pass.()
+    {:error, :wrong_type,          "irrelevant"} |> a.fail.(wrong_subtype_message)
 
-    (&(assert_error2(&1, :expected_error_type)))
-    |> assertion_fails_for(:error, bad_form_msg)
-    |> assertion_fails_for({:error, "content"}, bad_form_msg)
-    |> assertion_fails_for("anything else", bad_form_msg)
-
-    |> assertion_fails_for({:error, :bad_subtype, "content"},
-         Messages.bad_error_3tuple_subtype(:bad_subtype, :expected_error_type))
+    :error                                       |> a.fail.(wrong_shape_message)
+    {:error, "content"}                          |> a.fail.(wrong_shape_message)
+    "anything else"                              |> a.fail.(wrong_shape_message)
   end
 
   test "error2_content" do
@@ -253,4 +260,3 @@ defmodule FlowAssertions.MiscATest do
       end)
   end
 end
-
