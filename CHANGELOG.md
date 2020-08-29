@@ -22,3 +22,7 @@
 
   A variant of `ExUnit.Assertions.refute/1` that allows creation of
   specialized error messages.
+
+### Deprecations
+
+* Deprecate `FlowAssertions.NoValueA.refute_no_value/3` in favor of `FlowAssertions.NoValueA.assert_values_assigned/3`

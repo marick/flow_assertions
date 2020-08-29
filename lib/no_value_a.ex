@@ -67,11 +67,34 @@ defmodule FlowAssertions.NoValueA do
     do: assert_no_value(map, [key], no_value)
 
   @doc """
-  Assert that one or more keys in a map have values.
+  Assert that one or more keys in a map have been assigned values.
 
   Note that the second argument can be either a singleton key or a list.
+
+  The optional third argument gives the "value that is no value". It's
+  used to signify that the structure has never had its initial value
+  "changed".
+
   """
 
+  def assert_values_assigned(map, keys, no_value \\ nil)
+  
+  defchain assert_values_assigned(map, keys, no_value) when is_list(keys) do
+    for key <- keys do 
+      actual = Map.fetch!(map, key)
+      elaborate_assert(actual != no_value,
+        Messages.not_value(key),
+        expr: AssertionError.no_value,
+        left: actual)
+    end
+  end
+
+  def assert_values_assigned(map, key, no_value),
+    do: assert_values_assigned(map, [key], no_value)
+
+
+  @doc deprecated: "Use `assert_values_assigned/3` instead."
+  @deprecated "Use `assert_values_assigned/3` instead."
   def refute_no_value(map, keys, no_value \\ nil)
   
   defchain refute_no_value(map, keys, no_value) when is_list(keys) do
@@ -97,8 +120,12 @@ defmodule FlowAssertions.NoValueA do
       def assert_no_value(map, keys),
         do: NoValueA.assert_no_value(map, keys, unquote(no_value))
 
+      def assert_values_assigned(map, keys),
+        do: NoValueA.assert_values_assigned(map, keys, unquote(no_value))
+      
+      @deprecated "Use `assert_values_assigned/2` instead."
       def refute_no_value(map, keys),
-        do: NoValueA.refute_no_value(map, keys, unquote(no_value))
+        do: NoValueA.assert_values_assigned(map, keys, unquote(no_value))
     end
   end
 end
