@@ -1,6 +1,7 @@
 defmodule FlowAssertions.EnumA do
   use FlowAssertions.Define
   alias FlowAssertions.Messages
+  alias FlowAssertions.StructA
 
   @moduledoc """
   Assertions that apply to Enums.
@@ -33,6 +34,29 @@ defmodule FlowAssertions.EnumA do
   def singleton_content(enum),
     do: singleton_or_flunk(enum)
 
+
+  
+  @doc """
+  Combines `singleton_content/1` and `FlowAssertions.StructA.assert_struct_named/2`. 
+
+  ```
+  |> VM.Animal.lift(Schema.Animal)
+  |> singleton_content(VM.Animal)
+  |> assert_fields(...)
+
+  ```
+
+  In addition to checking that the value is a singleton Enumerable, it
+  checks that the `content` is a value of the named struct before returning it.
+  """
+
+  def singleton_content(enum, struct_name) do 
+    singleton_content(enum)
+    |> StructA.assert_struct_named(struct_name)
+  end
+
+
+  
   @doc """
   Assert that an Enum has no elements."
   ```
@@ -72,7 +96,7 @@ defmodule FlowAssertions.EnumA do
     assert_enumerable(enum)
     case Enum.into(enum, []) do
       [x] -> x
-      left -> elaborate_flunk(Messages.expected_1_element, left: left)
+      _ -> elaborate_flunk(Messages.expected_1_element, left: enum)
     end
   end
 end  

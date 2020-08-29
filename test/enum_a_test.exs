@@ -1,101 +1,80 @@
 defmodule FlowAssertions.EnumATest do
   use FlowAssertions.Case
+  import FlowAssertions.Define.Tabular
 
   @moduledoc """
   Assertions for values that satisfy the `Enum` protocol.
   """
 
-  describe "assert_singleton" do 
-    test "typical use: lists" do
-      assert assert_singleton([1]) == [1]
-
-      assertion_fails(
-        Messages.expected_1_element,
-        [left: []],
-        fn -> assert_singleton([]) end)
-      
-      assertion_fails(
-        Messages.expected_1_element,
-        fn -> assert_singleton([1, 2]) end)
+  describe "assert_singleton" do
+    setup do
+      [a: assertion_runners_for(&assert_singleton/1) |> left_is_actual]
+    end
+    
+    test "typical use: lists", %{a: a} do
+      [1   ] |> a.pass.()
+      [    ] |> a.fail.(Messages.expected_1_element)
+      [1, 2] |> a.fail.(Messages.expected_1_element)
     end
 
-    test "any Enum can be used" do
-      assert assert_singleton(%{a: 1}) == %{a: 1}
-
-      assertion_fails(
-        Messages.expected_1_element,
-        fn -> assert_singleton(%{}) end)
-      
-      assertion_fails(
-        Messages.expected_1_element,
-        fn -> assert_singleton(%{a: 1, b: 2}) end)
+    test "any Enum can be used", %{a: a} do
+      %{a: 1}       |> a.pass.()
+      %{    }       |> a.fail.(Messages.expected_1_element)
+      %{a: 1, b: 2} |> a.fail.(Messages.expected_1_element)
     end
   end
 
   describe "singleton_content" do 
-    test "typical use: lists" do
-      assert singleton_content([1]) == 1
-      
-      assertion_fails(
-        Messages.expected_1_element,
-        [left: []],
-        fn -> singleton_content([]) end)
-      
-      assertion_fails(
-        Messages.expected_1_element,
-        fn -> singleton_content([1, 2]) end)
+    setup do
+      [a: content_runners_for(&singleton_content/1) |> left_is_actual]
+    end
+    
+    test "typical use: lists", %{a: a} do
+      [1   ] |> a.pass.(1)
+      [    ] |> a.fail.(Messages.expected_1_element)
+      [1, 2] |> a.fail.(Messages.expected_1_element)
     end
 
-    test "any Enum can be used" do
-      assert singleton_content(%{a: 1}) == {:a, 1}
-
-      assertion_fails(
-        Messages.expected_1_element,
-        fn -> singleton_content(%{}) end)
-      
-      assertion_fails(
-        Messages.expected_1_element,
-        fn -> singleton_content(%{a: 1, b: 2}) end)
+    test "any Enum can be used", %{a: a} do
+      %{a: 1}       |> a.pass.({:a, 1})
+      %{    }       |> a.fail.(Messages.expected_1_element)
+      %{a: 1, b: 2} |> a.fail.(Messages.expected_1_element)
     end
 
-    test "non-Enum case fails" do
-      assertion_fails(Messages.not_enumerable,
-        [left: "sososo"],
-        fn ->
-          singleton_content("sososo")
-        end)
+    test "non-Enum case fails", %{a: a} do
+      "string" |> a.fail.(Messages.not_enumerable)
     end
   end
 
-  test "assert_enumerable" do
-    assert assert_enumerable([]) == []
+  test "singleton_content/2 with struct name argument" do
+    a = content_runners_for(&(singleton_content &1, Date))
+    date = ~D[2001-01-01]
+    datetime = ~N[2001-01-01 01:01:01.000]
+    
+    [date]     |> a.pass.(date)
+    [datetime] |> a.fail.(Messages.wrong_struct_name(NaiveDateTime, Date))
+               |> a.plus.(left: datetime)
 
-    assertion_fails(Messages.not_enumerable,
-      [left: 1],
-      fn -> 
-        assert_enumerable(1)
-      end)
+    # As before
+    [    ] |> a.fail.(Messages.expected_1_element)
+    [1, 2] |> a.fail.(Messages.expected_1_element)
+  end
+  
+
+  test "assert_enumerable" do
+    a = assertion_runners_for(&assert_enumerable/1) |> left_is_actual
+
+    [] |> a.pass.()
+    1  |> a.fail.(Messages.not_enumerable)
   end
 
   test "assert_empty" do
-    assert assert_empty([]) == []
-    assert assert_empty(%{}) == %{}
+    a = assertion_runners_for(&assert_empty/1) |> left_is_actual
 
-    assertion_fails(
-      Messages.expected_no_element,
-      fn -> assert_empty([1]) end)
-    
-    assertion_fails(
-      Messages.expected_no_element,
-      fn -> assert_empty(%{a: 2}) end)
-
-    assertion_fails(
-      Messages.not_enumerable,
-      [left: 3],
-      fn -> 
-        assert_empty(3)
-      end)
+     [    ]   |> a.pass.()
+     [1   ]  |> a.fail.(Messages.expected_no_element)
+    %{    }  |> a.pass.()
+    %{a: 2}  |> a.fail.(Messages.expected_no_element)
   end
-
 end
   
