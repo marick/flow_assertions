@@ -41,6 +41,8 @@ This is a library of assertions for Elixir's ExUnit. It emphasizes two things:
 
 [https://hexdocs.pm/flow_assertions](https://hexdocs.pm/flow_assertions)
 
+See also the [change log](./CHANGELOG.md).
+
 ## Installation
 
 Add `flow_assertions` to your list of dependencies in `mix.exs`:

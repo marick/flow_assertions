@@ -24,7 +24,7 @@ defmodule FlowAssertions.MixProject do
       source_url: @github,
       docs: [
         main: "FlowAssertions",
-        extras: ["README.md"],
+        extras: ["CHANGELOG.md"],
       ],
 
       package: [

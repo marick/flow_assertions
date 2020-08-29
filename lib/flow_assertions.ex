@@ -101,6 +101,11 @@ In the output, `left` will refer to some value extracted from
 
 *TBD*
 
+## Change log
+
+[Here](./changelog.html).
+
+
 """
 
   defmacro __using__(_) do
