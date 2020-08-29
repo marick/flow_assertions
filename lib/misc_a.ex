@@ -1,7 +1,6 @@
 defmodule FlowAssertions.MiscA do
   use FlowAssertions.Define
   alias FlowAssertions.Messages
-  alias FlowAssertions.Checkers
   alias FlowAssertions.Define.Defchecker
   alias FlowAssertions.StructA
 

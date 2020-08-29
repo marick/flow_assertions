@@ -2,7 +2,6 @@ defmodule FlowAssertions.Define.Tabular do
   alias FlowAssertions.{MiscA,MapA}
   import FlowAssertions.AssertionA
   import ExUnit.Assertions
-  alias ExUnit.AssertionError
 
   @moduledoc """
   Sketching out helper functions for tabular tests. This code will change.

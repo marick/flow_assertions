@@ -1,8 +1,6 @@
 defmodule FlowAssertions.Define.Defchecker do
   import FlowAssertions.Define.BodyParts
   alias FlowAssertions.Messages
-  alias FlowAssertions.MiscA
-  import FlowAssertions.AssertionA
 
   
   @moduledoc """
