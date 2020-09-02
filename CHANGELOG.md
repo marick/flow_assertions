@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0 (Pending)
+### Tweaks
+
+* `FlowAssertions.Define.BodyParts.struct_must_have_key!/2` has a better error
+  message.
+
 ## 0.4.0
 ### Features
 

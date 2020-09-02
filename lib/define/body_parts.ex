@@ -112,8 +112,13 @@ defmodule FlowAssertions.Define.BodyParts do
 
   """
   
-  defchain struct_must_have_key!(struct, key) when is_struct(struct),
-    do: assert Map.has_key?(struct, key), Messages.required_key_missing(key, struct)
+  defchain struct_must_have_key!(struct, key) when is_struct(struct) do 
+    elaborate_assert(
+      Map.has_key?(struct, key),
+      Messages.required_key_missing(key, struct),
+      left: struct |> Map.from_struct |> Map.keys)
+  end
+  
   def struct_must_have_key!(x, _), do: x
 
   @doc"""
