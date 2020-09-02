@@ -1,6 +1,5 @@
 defmodule FlowAssertions.MiscATest do
   use FlowAssertions.Case
-  import FlowAssertions.Define.Tabular
 
   test "assert_ok" do
     a = assertion_runners_for(&assert_ok/1) |> left_is_actual

@@ -7,7 +7,7 @@ defmodule FlowAssertions.Define.BodyPartsTest do
   @possible_keys [:a, :b]
 
   test "struct_must_have_key!" do
-    a = Tabular.assertion_runners_for(&struct_must_have_key!/2)
+    a = assertion_runners_for(&struct_must_have_key!/2)
     struct = %__MODULE__{}  # any struct will do
     
     [struct, :a          ] |> a.pass.()
@@ -18,7 +18,7 @@ defmodule FlowAssertions.Define.BodyPartsTest do
   end
 
   test "struct_must_have_keys!" do
-    a = Tabular.assertion_runners_for(&struct_must_have_keys!/2)
+    a = assertion_runners_for(&struct_must_have_keys!/2)
     struct = %__MODULE__{}  # any struct will do
     
     [struct, [:a, :b]          ] |> a.pass.()

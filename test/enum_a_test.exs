@@ -1,6 +1,5 @@
 defmodule FlowAssertions.EnumATest do
   use FlowAssertions.Case
-  import FlowAssertions.Define.Tabular
 
   @moduledoc """
   Assertions for values that satisfy the `Enum` protocol.
