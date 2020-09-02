@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0 (pending)
+## 0.4.0
 ### Features
 
 * `FlowAssertions.Checkers`
