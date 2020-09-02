@@ -8,7 +8,7 @@ defmodule FlowAssertions.Case do
       use FlowAssertions
       import FlowAssertions.AssertionA
       alias FlowAssertions.Messages
-      
+      alias FlowAssertions.Define.Tabular
     end  
   end
 end

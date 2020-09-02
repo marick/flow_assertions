@@ -4,20 +4,39 @@ defmodule FlowAssertions.Define.BodyPartsTest do
 
   defstruct a: 1, b: 2
 
-  test "struct_must_have_key[s]!" do
-    struct = %__MODULE__{}
+  @possible_keys [:a, :b]
 
-    assert struct_must_have_key!(struct, :a) == struct
-    assert struct_must_have_keys!(struct, [:a, :b]) == struct
+  test "struct_must_have_key!" do
+    a = Tabular.assertion_runners_for(&struct_must_have_key!/2)
+    struct = %__MODULE__{}  # any struct will do
+    
+    [struct, :a          ] |> a.pass.()
+    [struct, :not_present] |> a.fail.(message(:not_present))
+                           |> a.plus.(left: in_any_order(@possible_keys))
+    # When called on a non-struct, checks nothing.
+    [%{},    :a          ] |> a.pass.()
+  end
 
-    assertion_fails(Messages.required_key_missing(:not_present, struct),
-      fn -> 
-        struct_must_have_key!(struct, :not_present)
-      end)
+  test "struct_must_have_keys!" do
+    a = Tabular.assertion_runners_for(&struct_must_have_keys!/2)
+    struct = %__MODULE__{}  # any struct will do
+    
+    [struct, [:a, :b]          ] |> a.pass.()
+    [struct, [:a, :not_present]] |> a.fail.(message(:not_present))
+                                 |> a.plus.(left: in_any_order(@possible_keys))
 
-    assertion_fails(Messages.required_key_missing(:not_present, struct),
-      fn -> 
-        struct_must_have_keys!(struct, [:a, :not_present, :also_not_present])
-      end)
+    # Only first error is found]
+    [struct, [:a, :missing, :also_missing]] |> a.fail.(message(:missing))
+    
+    # When called on a non-struct, checks nothing.
+    [%{},    [:a]              ] |> a.pass.()
+  end
+  
+  # ----------------------------------------------------------------------------
+  
+  defp message(key) do
+    # The name is extracted from the struct, so actual value doesn't matter.
+    name_holder = %__MODULE__{}
+    Messages.required_key_missing(key, name_holder)
   end
 end

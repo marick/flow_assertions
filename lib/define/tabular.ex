@@ -18,11 +18,26 @@ defmodule FlowAssertions.Define.Tabular do
   end
 
   def assertion_runners_for(asserter) do
-    run = asserter
-    pass = fn actual -> assert run.(actual) == actual end
+    arity =
+      Function.info(asserter)
+      |> Keyword.get(:arity)
+
+    {run, pass} = run_and_pass(asserter, arity: arity)
     fail = make_assertion_fail(run)
     plus = &MapA.assert_fields/2
     make(run, pass, fail, plus)
+  end
+
+  defp run_and_pass(asserter, arity: 1) do
+    run = asserter
+    pass = fn actual -> assert run.(actual) == actual end
+    {run, pass}
+  end
+
+  defp run_and_pass(asserter, _) do
+    run = fn args -> apply asserter, args end
+    pass = fn [actual | _] = args -> assert run.(args) == actual end
+    {run, pass}
   end
 
   def content_runners_for(extractor) do
@@ -49,10 +64,12 @@ defmodule FlowAssertions.Define.Tabular do
     %{pass: pass,
       fail: fail,
       plus: plus,
-      view:    fn actual ->          run.(actual) end,
-      view_:   fn actual, _ ->       run.(actual) end,
-      view__:  fn actual, _, _ ->    run.(actual) end,
-      view___: fn actual, _, _, _ -> run.(actual) end,
+      inspect:    fn actual ->          run.(actual) |> IO.inspect end,
+      inspect_:   fn actual, _ ->       run.(actual) |> IO.inspect end,
+      inspect__:  fn actual, _, _ ->    run.(actual) |> IO.inspect end,
+      inspect___: fn actual, _, _, _ -> run.(actual) |> IO.inspect end,
+
+      run: run
     }
   end
 
