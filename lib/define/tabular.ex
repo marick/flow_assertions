@@ -48,6 +48,9 @@ defmodule FlowAssertions.Define.Tabular do
     make(run, pass, fail, plus)
   end    
 
+  @doc """
+  Note: only works if the original function has arity 1. Fix this.
+  """
   def left_is_actual(failure_producer) do
     amended_fail = 
       fn actual, expected_description ->
