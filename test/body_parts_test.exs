@@ -33,6 +33,30 @@ defmodule FlowAssertions.Define.BodyPartsTest do
   end
   
   # ----------------------------------------------------------------------------
+
+  test "adjust_assertion_error" do
+    assertion_fails(
+      "message",
+      [left: 8888],
+      fn ->
+        adjust_assertion_error(
+          fn -> flunk "message" end,
+          left: 8888)
+      end)
+  end
+
+
+  test "adjust_assertion_message" do
+    assertion_fails(
+      "message and message",
+      fn ->
+        adjust_assertion_message(
+          fn -> flunk "message" end,
+          fn message -> "#{message} and #{message}" end)
+      end)
+  end
+  
+  # ----------------------------------------------------------------------------
   
   defp message(key) do
     # The name is extracted from the struct, so actual value doesn't matter.

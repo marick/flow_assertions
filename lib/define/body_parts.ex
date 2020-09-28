@@ -144,6 +144,8 @@ defmodule FlowAssertions.Define.BodyParts do
   Setting the `expr` field to `AssertionError.no_value` has the handy effect of
   making the reporting machinery report the code of the assertion the user called,
   rather than the assertion that generated the error.
+
+  See also `adjust_assertion_message/2"
   """
   def adjust_assertion_error(f, replacements) do
     try do
@@ -153,6 +155,34 @@ defmodule FlowAssertions.Define.BodyParts do
         Enum.reduce(replacements, ex, fn {key, value}, acc ->
           Map.put(acc, key, value)
         end)
+        |> reraise(__STACKTRACE__)
+    end
+  end
+
+  @doc ~S"""
+  Run a function, perhaps generating an assertion error. If so, call the second function, passing the current assertion message as its argument. The result is installed as the new assertion message.
+
+  keyword arguments to replace values in the error. 
+
+      adjust_assertion_error(fn ->
+        MiscA.assert_good_enough(Map.get(kvs, key), expected)
+      end, 
+        message: "Field `#{inspect key}` has the wrong value",
+        expr: AssertionError.no_value)
+
+  Setting the `expr` field to `AssertionError.no_value` has the handy effect of
+  making the reporting machinery report the code of the assertion the user called,
+  rather than the assertion that generated the error.
+
+
+  See also `adjust_assertion_error/2"
+  """
+  def adjust_assertion_message(asserter, adjuster) do
+    try do
+      asserter.()
+    rescue
+      ex in AssertionError ->
+        Map.put(ex, :message, adjuster.(ex.message))
         |> reraise(__STACKTRACE__)
     end
   end
