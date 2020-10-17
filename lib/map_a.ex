@@ -62,7 +62,7 @@ defmodule FlowAssertions.MapA do
 
 
   @doc """
-  Same as `assert_fields` but more pleasingly grammatical
+  Same as `assert_fields/2` but more pleasingly grammatical
   when testing only one field:
 
       assert_field(some_map, key: "value")
@@ -78,6 +78,36 @@ defmodule FlowAssertions.MapA do
   defchain assert_field(kvs, singleton) do
     assert_fields(kvs, [singleton])
   end
+
+  # ----------------------------------------------------------------------------
+
+  @doc """
+  Fail if any of the fields in the `field_list` are present.
+
+      %{a: 1} |> refute_fields([:a, :b])    # fails
+  """
+  defchain refute_fields(some_map, field_list) when is_list(field_list) do
+    for field <- field_list do
+      elaborate_refute(Map.has_key?(some_map, field),
+        Messages.field_wrongly_present(field),
+        left: some_map)
+    end
+  end
+
+  def refute_fields(some_map, field),
+    do: refute_fields(some_map, [field])
+
+  @doc """
+  Same as refute_fields/2, but for a single field.
+
+      %{a: 1} |> refute_field(:a)    # fails
+  """
+  def refute_field(some_map, field) when is_list(field),
+    do: refute_fields(some_map, field)
+  
+  def refute_field(some_map, field), 
+    do: refute_fields(some_map, [field])
+    
 
   # ----------------------------------------------------------------------------
   @doc """

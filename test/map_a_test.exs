@@ -46,6 +46,36 @@ defmodule FlowAssertions.MapATest do
     end
   end
 
+  describe "refute_fields" do
+
+    test "basic" do 
+      assert refute_fields(%{a: 1}, [:b]) == %{a: 1}
+      
+      assertion_fails(
+        Messages.field_wrongly_present("a"),
+        [left: %{"a" => [], "b" => 2}],
+        fn -> 
+          refute_fields(%{"a" => [], "b" => 2}, ["a", "b"])
+        end)
+    end
+
+    test "variants" do
+      map = %{a: 1}
+
+      run = fn f ->
+        assertion_fails(
+          Messages.field_wrongly_present(:a),
+          [left: map],
+          f)
+      end
+
+      run.(fn -> refute_field(map, :a) end)
+      # tolerate typos
+      run.(fn -> refute_field(map, [:a]) end)
+      run.(fn -> refute_fields(map, :a) end)
+    end
+  end
+
   test "with_singleton_content" do
     assert with_singleton_content(%{a: [1]}, :a) == 1
 

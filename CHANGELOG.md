@@ -4,7 +4,8 @@
 
 ### Additions
 
-* `FlowAssertions.Define.BodyParts.adjust_assertion_message!/2`
+* `FlowAssertions.Define.BodyParts.adjust_assertion_message/2`
+* `FlowAssertions.MapA.refute_fields/2`
 
 ### Tweaks
 
