@@ -145,7 +145,7 @@ defmodule FlowAssertions.Define.BodyParts do
   making the reporting machinery report the code of the assertion the user called,
   rather than the assertion that generated the error.
 
-  See also `adjust_assertion_message/2`"
+  See also `adjust_assertion_message/2`
   """
   def adjust_assertion_error(f, replacements) do
     try do
