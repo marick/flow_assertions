@@ -17,6 +17,7 @@ defmodule FlowAssertions.Define.Tabular do
     make(run, pass, fail, plus)
   end
 
+  # ----------------------------------------------------------------------------
   def assertion_runners_for(asserter) do
     arity =
       Function.info(asserter)
@@ -40,6 +41,27 @@ defmodule FlowAssertions.Define.Tabular do
     {run, pass}
   end
 
+  # ----------------------------------------------------------------------------
+  def nonflow_assertion_runners_for(asserter) do
+    arity =
+      Function.info(asserter)
+      |> Keyword.get(:arity)
+
+    {run, pass} = nonflow_run_and_pass(asserter, arity: arity)
+    fail = make_assertion_fail(run)
+    plus = &MapA.assert_fields/2
+    make(run, pass, fail, plus)
+  end
+
+  defp nonflow_run_and_pass(asserter, arity: 1),
+    do: {asserter, asserter}
+
+  defp nonflow_run_and_pass(asserter, _) do
+    run = fn args -> apply asserter, args end
+    {run, run}
+  end
+
+  # ----------------------------------------------------------------------------
   def content_runners_for(extractor) do
     run = extractor
     pass = fn actual, expected -> assert run.(actual) == expected end

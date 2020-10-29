@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0 (pending)
+
+### Additions
+
+* `FlowAssertions.Define.Tabular.nonflow_assertion_runners_for/1`
+
 ## 0.5.0
 
 ### Additions
