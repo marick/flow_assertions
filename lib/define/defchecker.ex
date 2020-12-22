@@ -10,6 +10,8 @@ defmodule FlowAssertions.Define.Defchecker do
   """
 
   defmodule Failure do
+    @moduledoc false
+
     defstruct mfa: {nil, nil, []}, actual: nil
 
     # A "by order of arguments" or "boa" constructor.

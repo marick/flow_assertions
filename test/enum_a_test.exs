@@ -70,7 +70,7 @@ defmodule FlowAssertions.EnumATest do
   test "assert_empty" do
     a = assertion_runners_for(&assert_empty/1) |> left_is_actual
 
-     [    ]   |> a.pass.()
+     [    ]  |> a.pass.()
      [1   ]  |> a.fail.(Messages.expected_no_element)
     %{    }  |> a.pass.()
     %{a: 2}  |> a.fail.(Messages.expected_no_element)
