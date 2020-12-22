@@ -36,12 +36,13 @@ defmodule FlowAssertions.Define.BodyPartsTest do
 
   test "adjust_assertion_error" do
     assertion_fails(
-      "message",
+      "message...",
       [left: 8888],
       fn ->
         adjust_assertion_error(
           fn -> flunk "message" end,
-          left: 8888)
+          left: 8888,
+          message: fn message -> message <> "..." end)
       end)
   end
 
