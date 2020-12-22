@@ -91,32 +91,7 @@ defmodule FlowAssertions.Define.Tabular do
     zero arguments, like `pass`. 
   """
 
-  @doc """
-  Create checking functions for functions like those in `FlowAssertions.Checkers`. 
-
-        a = checker_runners_for(&in_any_order/1)]
-          # actual   checked against
-
-        [ [1, 2, 3],   [1, 2, 3] ]     |> a.pass.()
-        [ [1, 2, 3],   [7, 1, 3] ]     |> a.fail.(~r/different elements/)
-
-  `checker` should be a function that can return a
-  `FlowAssertions.Define.Defchecker.Failure` value`. As for what that
-  means... Well, as of late 2020, checker creation is not documented.
-  """
-  
-  def checker_runners_for(checker) do
-    run = fn [actual, expected] ->
-      MiscA.assert_good_enough(actual, checker.(expected))
-    end
-    pass = run
-    fail = make_assertion_fail(run)
-    plus = &MapA.assert_fields/2
-    make(run, pass, fail, plus)
-  end
-
   # ----------------------------------------------------------------------------
-
   
   @doc """
   Create checking functions for flow-style assertions.
@@ -151,56 +126,17 @@ defmodule FlowAssertions.Define.Tabular do
     {run, pass}
   end
 
-  # ----------------------------------------------------------------------------
-  @doc """
-  Create checking functions for regular Elixir assertions.
-
-  `asserter` should be a function that raises an `AssertionError` or 
-  returns an unspecified value. `pass`, then, always succeeds if it's
-  given a value.
-  """
-  def nonflow_assertion_runners_for(asserter) do
-    arity =
-      Function.info(asserter)
-      |> Keyword.get(:arity)
-
-    {run, pass} = nonflow_run_and_pass(asserter, arity: arity)
-    fail = make_assertion_fail(run)
-    plus = &MapA.assert_fields/2
-    make(run, pass, fail, plus)
+  defp run_and_pass__2(asserter, arity: 1) do
+    run = asserter
+    pass = fn actual -> assert run.(actual) == actual end
+    %{run: run, pass: pass, arity: 1}
   end
 
-  defp nonflow_run_and_pass(asserter, arity: 1),
-    do: {asserter, asserter}
-
-  defp nonflow_run_and_pass(asserter, _) do
+  defp run_and_pass__2(asserter, arity: arity) do
     run = fn args -> apply asserter, args end
-    {run, run}
+    pass = fn [actual | _] = args -> assert run.(args) == actual end
+    %{run: run, pass: pass, arity: arity}
   end
-
-  # ----------------------------------------------------------------------------
-  @doc """
-  Create checking functions for functions that either return part of a compound
-  value or raise an `AssertionError`. 
-
-  Consider `FlowAssertions.MiscA.ok_content`:
-
-       a = content_runners_for(&ok_content/1)
-       
-       {:ok, "content"}    |> a.pass.("content")
-       :ok                 |> a.fail.(Messages.not_ok_tuple)
-       {:error, "content"} |> a.fail.(Messages.not_ok_tuple)
-
-  Note that `pass` takes a single value.
-  """
-  
-  def content_runners_for(extractor) do
-    run = extractor
-    pass = fn actual, expected -> assert run.(actual) == expected end
-    fail = make_assertion_fail(run)
-    plus = &MapA.assert_fields/2
-    make(run, pass, fail, plus)
-  end    
 
   @doc """
   Adjust the results of a `fail` function to assert a value for `left:`. 
@@ -233,6 +169,92 @@ defmodule FlowAssertions.Define.Tabular do
   end
 
   # ----------------------------------------------------------------------------
+  @doc """
+  Create checking functions for regular Elixir assertions.
+
+  `asserter` should be a function that raises an `AssertionError` or 
+  returns an unspecified value. `pass`, then, always succeeds if it's
+  given a value.
+  """
+  def nonflow_assertion_runners_for(asserter) do
+    arity =
+      Function.info(asserter)
+      |> Keyword.get(:arity)
+
+    {run, pass} = nonflow_run_and_pass(asserter, arity: arity)
+    fail = make_assertion_fail(run)
+    plus = &MapA.assert_fields/2
+    make(run, pass, fail, plus)
+  end
+
+  defp nonflow_run_and_pass(asserter, arity: 1),
+    do: {asserter, asserter}
+
+  defp nonflow_run_and_pass(asserter, _) do
+    run = fn args -> apply asserter, args end
+    {run, run}
+  end
+
+  defp nonflow_run_and_pass__2(asserter, arity: 1),
+    do: %{run: asserter, pass: asserter, arity: 1}
+
+  defp nonflow_run_and_pass(asserter, arity: arity) do
+    run = fn args -> apply asserter, args end
+    %{run: run, pass: run, arity: arity}
+  end
+
+  # ----------------------------------------------------------------------------
+  @doc """
+  Create checking functions for functions that either return part of a compound
+  value or raise an `AssertionError`. 
+
+  Consider `FlowAssertions.MiscA.ok_content`:
+
+       a = content_runners_for(&ok_content/1)
+       
+       {:ok, "content"}    |> a.pass.("content")
+       :ok                 |> a.fail.(Messages.not_ok_tuple)
+       {:error, "content"} |> a.fail.(Messages.not_ok_tuple)
+
+  Note that `pass` takes a single value.
+  """
+  
+  def content_runners_for(extractor) do
+    run = extractor
+    pass = fn actual, expected -> assert run.(actual) == expected end
+    fail = make_assertion_fail(run)
+    plus = &MapA.assert_fields/2
+    make(run, pass, fail, plus)
+  end    
+
+
+  # ----------------------------------------------------------------------------
+
+  @doc """
+  Create checking functions for functions like those in `FlowAssertions.Checkers`. 
+
+        a = checker_runners_for(&in_any_order/1)]
+          # actual   checked against
+
+        [ [1, 2, 3],   [1, 2, 3] ]     |> a.pass.()
+        [ [1, 2, 3],   [7, 1, 3] ]     |> a.fail.(~r/different elements/)
+
+  `checker` should be a function that can return a
+  `FlowAssertions.Define.Defchecker.Failure` value`. As for what that
+  means... Well, as of late 2020, checker creation is not documented.
+  """
+  
+  def checker_runners_for(checker) do
+    run = fn [actual, expected] ->
+      MiscA.assert_good_enough(actual, checker.(expected))
+    end
+    pass = run
+    fail = make_assertion_fail(run)
+    plus = &MapA.assert_fields/2
+    make(run, pass, fail, plus)
+  end
+
+  # ----------------------------------------------------------------------------
 
   defp make(run, pass, fail, plus) do
     %{pass: pass,
@@ -247,6 +269,21 @@ defmodule FlowAssertions.Define.Tabular do
       run: run
     }
   end
+
+  defp add_inspect(runners) do
+    run = runners.run
+
+    Map.merge(
+      runners,
+      %{
+        inspect:    fn actual ->          run.(actual) |> IO.inspect end,
+        inspect_:   fn actual, _ ->       run.(actual) |> IO.inspect end,
+        # These are probably useless, but whatever.
+        inspect__:  fn actual, _, _ ->    run.(actual) |> IO.inspect end,
+        inspect___: fn actual, _, _, _ -> run.(actual) |> IO.inspect end,
+      })
+  end
+  
 
   defp make_assertion_fail(run) do
     fn
