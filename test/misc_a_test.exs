@@ -75,26 +75,27 @@ defmodule FlowAssertions.MiscATest do
          Messages.bad_error_3tuple_subtype(:bad_subtype, :expected_error_type))
   end
 
-  describe "assert_equal" do 
-    test "basics" do
-      assert "value" == assert_equal("value", "value")
-      assert "value" == assert_equals("value", "value")
-      
-      assert_raise(AssertionError, fn ->
-        assert_equal(1, 2)
-      end)
-      
-      assert_raise(AssertionError, fn ->
-        assert_equals(1, 2)
-      end)
-    end
-    
-    test "uses `===`" do
-      assert_raise(AssertionError, fn ->
-        assert_equal(1, 1.0)
-      end)
-    end
+  test "assert_equal" do
+    a = assertion_runners_for(&assert_equal/2)
+
+    ["value", "value"] |> a.pass.()
+    ["value", "     "] |> a.fail.("Assertion with === failed")
+                       |> a.plus.(left: "value", right: "     ")
+
+    # Clearer demonstration that `===` is used:
+    [1, 1.0]           |> a.fail.("Assertion with === failed")
+                       |> a.plus.(left: 1,       right: 1.0)
   end
+
+
+  test "assert_equals is same as assert_equal" do
+    a = assertion_runners_for(&assert_equals/2)
+
+    ["value", "value"] |> a.pass.()
+    ["value", "     "] |> a.fail.("Assertion with === failed")
+                       |> a.plus.(left: "value", right: "     ")
+  end
+  
 
   # ----------------------------------------------------------------------------
   
