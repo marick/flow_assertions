@@ -49,7 +49,7 @@ defmodule FlowAssertions.Define.Defchecker do
     "#{function}(#{printable_args})"
   end
 
-  # Sketch for if it becomes useful to define checkers.
+  # Sketch for if a `defchecker` macro becomes useful.
   # This hasn't been made to work with `when` annotations. See `defchain`.
   @doc false
   defmacro defchecker(head, do: predicate) do

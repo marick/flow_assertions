@@ -6,14 +6,17 @@ defmodule FlowAssertions.Checkers do
   @moduledoc """
   Functions that create handy predicates for use with `FlowAssertions.MiscA.assert_good_enough/2`
 
-
       actual
       |> assert_good_enough( in_any_order([1, 2, 3]))
 
   "Checkers" typically provide custom failure messages that are better than
   what a simple predicate would provide.
 
-  This module is a work in progress.
+  This module is a work in progress, but what now works will continue to work
+  and can be used safely. For examples of what checkers might come, see the
+  [Midje documentation](https://github.com/marick/Midje/wiki). (Links are under
+  the third bullet point of "The Core" on that page.)
+  
   """
 
   @doc """
