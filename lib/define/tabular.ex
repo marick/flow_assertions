@@ -210,8 +210,11 @@ defmodule FlowAssertions.Define.Tabular do
   def checker_runners_for(checker), do: runners(:returns_informative_failure, checker)
 
   # ----------------------------------------------------------------------------
+  #
+  # The variants are down here so they can be clustered closer together to make
+  # them easier to compare
 
-  def runners(key, f), do: start(key, f) |> finish
+  defp runners(key, f), do: start(key, f) |> finish
   
   defp start(:returns_first_arg, asserter) do
     case arity(asserter) do
@@ -225,7 +228,6 @@ defmodule FlowAssertions.Define.Tabular do
         %{run: run, pass: pass, arity: arity}
     end
   end
-
 
   defp start(:return_irrelevant, asserter) do 
     case arity(asserter) do
