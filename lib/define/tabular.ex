@@ -47,17 +47,24 @@ defmodule FlowAssertions.Define.Tabular do
           {:ok, "content"}    |> a.pass.("content")
           ...
 
-  * **fail**: takes an argument that is matched against an `AssertError`'s
-    `message` field. That argument may be:
+  * **fail**: takes an argument that is matched against an 
+    `AssertionError`. 
 
-     * A string, which must match exactly. 
+     * A string, which must match the error message exactly. 
      * A regular expression, like `~r/different lengths/`, which
        can match part of the message.
-     * A list, in which case `fail` is checked against each element of the list.
-       (For example, you can use two regular expressions to check two stretches
-       of the message.)
+     * A keyword list, which is checked with `FlowAssertions.MapA.assert_fields/2`
+       A typical use might be:
 
-  * **plus**: Used to make other claims about an `AssertionError`. It's appended
+            [ {1, 2}, 3 ] |> a.fail.(left: {1, 2}, right: 3)
+
+       Note that the left and right values are the true values from `ExUnit.AssertionError`, not `inspect`ed versions.
+       If the error message is also to be tested, it should be given in keyword form:
+
+          a.fail.(left: "a", right: "bb", message: ~r/different lengths/)
+
+  * **plus**: Provides an arguably nicer way to check both the `:message` and
+    other `AssertionError` fields. It's appended
     to `fail` like this:
 
          [datetime] |> a.fail.(Messages.wrong_struct_name(NaiveDateTime, Date))

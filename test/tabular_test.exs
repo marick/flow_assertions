@@ -13,6 +13,11 @@ defmodule FlowAssertions.Define.TabularTests do
 
       ["a", "b"] |> a.fail.(msg)
                  |> a.plus.(left: "a", right: "b")
+
+      # Note that left and right are not string versions
+      [ ["a", "a"], "b"] |> a.fail.(message:      msg, left: ["a", "a"])
+      # The message is always compared specially:
+      [ ["a", "a"], "b"] |> a.fail.(message: ~r/with/, left: ["a", "a"])
     end
   end
 end
