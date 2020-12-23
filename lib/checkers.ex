@@ -61,25 +61,33 @@ defmodule FlowAssertions.Checkers do
   @doc """
   TBD
   """
-  def contains(expected) when is_binary(expected) do
-    fn actual ->
+  def has_slice(expected) when is_binary(expected) do
+    fn actual when is_binary(actual) ->
       if String.contains?(actual, expected),
         do: true,
-        else: Failure.boa(actual, :contains, expected)
+        else: Failure.boa(actual, :has_slice, expected)
     end
   end
 
-  # m = quote do 
-  #   defchecker contains2(expected) do
-  #     fn actual -> String.contains?(actual, expected) end
-  #   end
-  # end
+  def has_slice(expected) when is_list(expected) do
+    fn actual when is_list(actual) ->
+      if has_prefix?(actual, expected),
+        do: true,
+        else: Failure.boa(actual, :has_slice, expected)
+    end
+  end
 
-  # IO.puts Macro.expand_once(m, __ENV__) |> Macro.to_string
-
-
-    # defchecker contains2(expected) do
-    #   fn actual -> String.contains?(actual, expected) end
-    # end
-  
+  defp has_prefix?([], []), do: true
+  defp has_prefix?([], _), do: false
+  defp has_prefix?([_ | rest] = larger, prefix) when is_list(prefix) do
+    comparison_length = length(prefix)
+    cond do
+      length(larger) < comparison_length ->
+        false
+      Enum.take(larger, comparison_length) == prefix ->
+        true
+      true ->
+        has_prefix?(rest, prefix)
+    end
+  end
 end  

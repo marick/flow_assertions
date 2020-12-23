@@ -238,14 +238,14 @@ defmodule FlowAssertions.MiscATest do
 
     test "checkers can succeed just like any predicate" do
       "bac"
-      |> assert_good_enough(contains("a"))
+      |> assert_good_enough(has_slice("a"))
     end
 
     test "checkers can fail" do
-      assertion_fails(Messages.failed_checker(~s[contains("bac")]),
+      assertion_fails(Messages.failed_checker(~s[has_slice("bac")]),
         [left: "a"],
         fn -> 
-          assert_good_enough("a", contains("bac"))
+          assert_good_enough("a", has_slice("bac"))
         end)
     end
   end

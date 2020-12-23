@@ -29,4 +29,40 @@
       [ [3, 2, 3],   [1, 2]    ]     |> a.fail.(left: [2, 3, 3], right: [1, 2])
     end
   end
+
+
+  describe "has_slice" do
+    setup do: [runners: checker_runners_for(&has_slice/1)]
+    
+   test "strings", %{runners: a} do
+      ["a", "" ]  |> a.pass.()
+      ["a", "a"]  |> a.pass.()
+      ["a", "b"]  |> a.fail.(~s/Checker `has_slice("b")` failed/)
+      ["", "a" ]  |> a.fail.(~s/Checker `has_slice("a")` failed/)
+                  |> a.plus.(left: "")
+
+      ["brian", "ian"] |> a.pass.()
+   end
+    
+   test "lists", %{runners: a} do
+      [[ ], [ ]]  |> a.pass.()
+      [[1], [ ]]  |> a.pass.()
+      [[1], [1]]  |> a.pass.()
+      [[ ], [1]]  |> a.fail.(~s/Checker `has_slice([1])` failed/)
+                  |> a.plus.(left: [])
+      
+      [[1, 2, 3], [1]]  |> a.pass.()
+      [[1, 2, 3], [1, 2]]  |> a.pass.()
+      [[1, 2, 3], [1, 2, 3]]  |> a.pass.()
+
+      [[1, 2, 3], [2]]  |> a.pass.()
+      [[1, 2, 3], [2, 3]]  |> a.pass.()
+      [[1, 2, 3], [2, 3, 1]]  |> a.fail.(~s/Checker `has_slice([2, 3, 1])` failed/)
+
+      [[1, 2, 3], [3]]  |> a.pass.()
+      [[1, 2, 3], [3, 1]]  |> a.fail.(~s/Checker `has_slice([3, 1])` failed/)
+      [[1, 2, 3], [3, 1, 2]]  |> a.fail.(~s/Checker `has_slice([3, 1, 2])` failed/)
+   end
+    
+  end
 end  
