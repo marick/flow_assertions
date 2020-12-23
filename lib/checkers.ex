@@ -56,10 +56,12 @@ defmodule FlowAssertions.Checkers do
     do: [left: alphabetical(actual), right: alphabetical(expected)]
   defp alphabetical(xs), do: Enum.sort_by(xs, &to_string/1)
 
-    
-
   @doc """
-  TBD
+  Checks whether a String or List contains another.
+
+      [1, 2, 3] |> assert_good_enough( has_slice([2, 3]))
+      "abcdefg" |> assert_good_enough( has_slice("abc"))
+
   """
   def has_slice(expected) when is_binary(expected) do
     fn actual when is_binary(actual) ->
