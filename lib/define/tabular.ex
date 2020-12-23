@@ -103,40 +103,8 @@ defmodule FlowAssertions.Define.Tabular do
 
   `pass` and `fail` are as described above.
   """
-  def assertion_runners_for(asserter) do
-    arity =
-      Function.info(asserter)
-      |> Keyword.get(:arity)
-
-    {run, pass} = run_and_pass(asserter, arity: arity)
-    fail = make_assertion_fail(run)
-    plus = &MapA.assert_fields/2
-    make(run, pass, fail, plus)
-  end
-
-  defp run_and_pass(asserter, arity: 1) do
-    run = asserter
-    pass = fn actual -> assert run.(actual) == actual end
-    {run, pass}
-  end
-
-  defp run_and_pass(asserter, _) do
-    run = fn args -> apply asserter, args end
-    pass = fn [actual | _] = args -> assert run.(args) == actual end
-    {run, pass}
-  end
-
-  defp run_and_pass__2(asserter, arity: 1) do
-    run = asserter
-    pass = fn actual -> assert run.(actual) == actual end
-    %{run: run, pass: pass, arity: 1}
-  end
-
-  defp run_and_pass__2(asserter, arity: arity) do
-    run = fn args -> apply asserter, args end
-    pass = fn [actual | _] = args -> assert run.(args) == actual end
-    %{run: run, pass: pass, arity: arity}
-  end
+  def assertion_runners_for(asserter),
+    do: runners(:returns_first_arg, asserter)
 
   @doc """
   Adjust the results of a `fail` function to assert a value for `left:`. 
@@ -176,32 +144,8 @@ defmodule FlowAssertions.Define.Tabular do
   returns an unspecified value. `pass`, then, always succeeds if it's
   given a value.
   """
-  def nonflow_assertion_runners_for(asserter) do
-    arity =
-      Function.info(asserter)
-      |> Keyword.get(:arity)
-
-    {run, pass} = nonflow_run_and_pass(asserter, arity: arity)
-    fail = make_assertion_fail(run)
-    plus = &MapA.assert_fields/2
-    make(run, pass, fail, plus)
-  end
-
-  defp nonflow_run_and_pass(asserter, arity: 1),
-    do: {asserter, asserter}
-
-  defp nonflow_run_and_pass(asserter, _) do
-    run = fn args -> apply asserter, args end
-    {run, run}
-  end
-
-  defp nonflow_run_and_pass__2(asserter, arity: 1),
-    do: %{run: asserter, pass: asserter, arity: 1}
-
-  defp nonflow_run_and_pass(asserter, arity: arity) do
-    run = fn args -> apply asserter, args end
-    %{run: run, pass: run, arity: arity}
-  end
+  def nonflow_assertion_runners_for(asserter),
+    do: runners(:return_irrelevant, asserter)
 
   # ----------------------------------------------------------------------------
   @doc """
@@ -219,14 +163,7 @@ defmodule FlowAssertions.Define.Tabular do
   Note that `pass` takes a single value.
   """
   
-  def content_runners_for(extractor) do
-    run = extractor
-    pass = fn actual, expected -> assert run.(actual) == expected end
-    fail = make_assertion_fail(run)
-    plus = &MapA.assert_fields/2
-    make(run, pass, fail, plus)
-  end    
-
+  def content_runners_for(extractor), do: runners(:returns_part, extractor)
 
   # ----------------------------------------------------------------------------
 
@@ -244,31 +181,75 @@ defmodule FlowAssertions.Define.Tabular do
   means... Well, as of late 2020, checker creation is not documented.
   """
   
-  def checker_runners_for(checker) do
-    run = fn [actual, expected] ->
-      MiscA.assert_good_enough(actual, checker.(expected))
-    end
-    pass = run
-    fail = make_assertion_fail(run)
-    plus = &MapA.assert_fields/2
-    make(run, pass, fail, plus)
-  end
+  def checker_runners_for(checker), do: runners(:returns_informative_failure, checker)
 
   # ----------------------------------------------------------------------------
 
-  defp make(run, pass, fail, plus) do
-    %{pass: pass,
-      fail: fail,
-      plus: plus,
-      inspect:    fn actual ->          run.(actual) |> IO.inspect end,
-      inspect_:   fn actual, _ ->       run.(actual) |> IO.inspect end,
-      # These are probably useless, but whatever.
-      inspect__:  fn actual, _, _ ->    run.(actual) |> IO.inspect end,
-      inspect___: fn actual, _, _, _ -> run.(actual) |> IO.inspect end,
-
-      run: run
-    }
+  def runners(key, f), do: start(key, f) |> finish
+  
+  defp start(:returns_first_arg, asserter) do
+    case arity(asserter) do
+      1 -> 
+        run = asserter
+        pass = fn actual -> assert run.(actual) == actual end
+        %{run: run, pass: pass, arity: 1}
+      arity ->
+        run = fn args -> apply asserter, args end
+        pass = fn [actual | _] = args -> assert run.(args) == actual end
+        %{run: run, pass: pass, arity: arity}
+    end
   end
+
+
+  defp start(:return_irrelevant, asserter) do 
+    case arity(asserter) do
+      1 ->
+        run = asserter
+        %{run: run, pass: run, arity: 1}
+      arity ->
+        run = fn args -> apply asserter, args end
+        %{run: run, pass: run, arity: arity}
+    end
+  end
+  
+  defp start(:returns_part, extractor) do 
+    case arity(extractor) do
+      1 ->
+        run = extractor
+        pass = fn actual, expected -> assert run.(actual) == expected end
+        %{run: run, pass: pass, arity: 1}
+      _arity -> 
+        flunk("Only arity 1 is allowed")
+    end
+  end
+
+  defp start(:returns_informative_failure, checker) do
+    case arity(checker) do
+      1 ->
+        run = fn [actual, expected] ->
+          MiscA.assert_good_enough(actual, checker.(expected))
+        end
+        pass = run
+        %{run: run, pass: pass, arity: 1}
+      _arity -> 
+        flunk("Only arity 1 is allowed")
+    end            
+  end
+  
+  # ----------------------------------------------------------------------------
+
+  defp make_assertion_fail(run) do
+    fn
+      actual, %Regex{} = regex ->
+        assertion_fails(regex, fn -> run.(actual) end)
+      actual, message when is_binary(message) ->
+        assertion_fails(message, fn -> run.(actual) end)
+      actual, opts when is_list(opts) ->
+        assertion_fails(~r/.*/, opts, fn -> run.(actual) end)
+    end
+  end
+
+  defp arity(function), do: Function.info(function) |> Keyword.get(:arity)
 
   defp add_inspect(runners) do
     run = runners.run
@@ -283,16 +264,13 @@ defmodule FlowAssertions.Define.Tabular do
         inspect___: fn actual, _, _, _ -> run.(actual) |> IO.inspect end,
       })
   end
-  
 
-  defp make_assertion_fail(run) do
-    fn
-      actual, %Regex{} = regex ->
-        assertion_fails(regex, fn -> run.(actual) end)
-      actual, message when is_binary(message) ->
-        assertion_fails(message, fn -> run.(actual) end)
-      actual, opts when is_list(opts) ->
-        assertion_fails(~r/.*/, opts, fn -> run.(actual) end)
-    end
+  defp finish(runners) do 
+    runners
+    |> Map.put(:fail, make_assertion_fail(runners.run))
+    |> Map.put(:plus, &MapA.assert_fields/2)
+    |> add_inspect
   end
+  
+  
 end
