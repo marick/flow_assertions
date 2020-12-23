@@ -61,7 +61,7 @@ defmodule FlowAssertions.Define.Tabular do
        Note that the left and right values are the true values from `ExUnit.AssertionError`, not `inspect`ed versions.
        If the error message is also to be tested, it should be given in keyword form:
 
-          a.fail.(left: "a", right: "bb", message: ~r/different lengths/)
+            a.fail.(left: "a", right: "bb", message: ~r/different lengths/)
 
   * **plus**: Provides an arguably nicer way to check both the `:message` and
     other `AssertionError` fields. It's appended
@@ -96,6 +96,25 @@ defmodule FlowAssertions.Define.Tabular do
     The trailing `_` indicates that `inspect_` is replacing a function that
     takes one argument. Use `inspect` to replace a function with
     zero arguments, like `pass`. 
+
+
+  ## Beware the typo
+
+  The most common mistake *I* make with this library is to make this typo:
+
+        ["", "a" ]  |> a.fail(~s/Checker `has_slice("a")` failed/)
+
+  There should be a period after `fail`. The result (as of Elixir 1.11) is
+
+        ** (ArgumentError) you attempted to apply a function on %{arity: 1,
+        fail: #Function<5.65840318/2 in FlowAssertions.Define.Tabular.make_
+        assertion_fail/1>, inspect: #Function<0.65840318/1 in FlowAssertion
+        ...
+        Assertions.Define.Tabular.start/2>}. Modules (the first argument of
+        apply) must always be an atom
+
+
+  ... which is perhaps not as clear as it should be. But now you're forewarned.
   """
 
   # ----------------------------------------------------------------------------
@@ -184,7 +203,7 @@ defmodule FlowAssertions.Define.Tabular do
         [ [1, 2, 3],   [7, 1, 3] ]     |> a.fail.(~r/different elements/)
 
   `checker` should be a function that can return a
-  `FlowAssertions.Define.Defchecker.Failure` value`. As for what that
+  `FlowAssertions.Define.Defchecker.Failure` value. As for what that
   means... Well, as of late 2020, checker creation is not documented.
   """
   
