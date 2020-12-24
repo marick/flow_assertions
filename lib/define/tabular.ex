@@ -154,15 +154,28 @@ There should be a period after `fail`. The result (as of Elixir 1.11) is
   it is the argument given to `ok_content`). There is no need to add a
   `|> plus.(left: :ok)`. 
 
-  Note: the original function (the `asserter` or `extractor`) must take only
-  a single argument.
+  If the function under test takes more than one argument, the `left:` value must
+  be the first element of the list on the left-hand side of the `|>`. That is,
+  in the following, the `left:` value is checked to be `[1]`.
+
+       a = assertion_runners_for(&assert_equal/2) |> left_is_actual
+       [[1], 1] |> x.fail.("Assertion with === failed")
+
   """
   def left_is_actual(failure_producer) do
-    amended_fail = 
-      fn actual, expected_description ->
-        failure_producer.fail.(actual, expected_description)
-        |> MapA.assert_field(left: actual)
-    end
+    amended_fail =
+      case failure_producer.arity do
+        1 -> 
+          fn actual, expected_description ->
+            failure_producer.fail.(actual, expected_description)
+            |> MapA.assert_field(left: actual)
+          end
+        _ ->
+          fn [left | _] = actual, expected_description ->
+            failure_producer.fail.(actual, expected_description)
+            |> MapA.assert_field(left: left)
+          end
+      end
 
     Map.put(failure_producer, :fail, amended_fail)
   end
