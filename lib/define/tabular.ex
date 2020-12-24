@@ -53,15 +53,20 @@ defmodule FlowAssertions.Define.Tabular do
      * A string, which must match the error message exactly. 
      * A regular expression, like `~r/different lengths/`, which
        can match part of the message.
-     * A keyword list, which is checked with `FlowAssertions.MapA.assert_fields/2`
+     * A keyword list, which is checked with `FlowAssertions.MapA.assert_fields/2`.
        A typical use might be:
 
             [ {1, 2}, 3 ] |> a.fail.(left: {1, 2}, right: 3)
 
-       Note that the left and right values are the true values from `ExUnit.AssertionError`, not `inspect`ed versions.
+       Note that the left and right values are the true values from `ExUnit.AssertionError`, not string versions as from `inspect`.
        If the error message is also to be tested, it should be given in keyword form:
 
             a.fail.(left: "a", right: "bb", message: ~r/different lengths/)
+
+     Note that field names like `:left`, `:right`, and `:message` are
+     not part of the public API of `ExUnit.AssertionError`, so those
+     names could change in the future (though I doubt it). See the
+     [`AssertionError` source](https://github.com/elixir-lang/elixir/blob/v1.11.2/lib/ex_unit/lib/ex_unit/assertions.ex) for some other fields.
 
   * **plus**: Provides an arguably nicer way to check both the `:message` and
     other `AssertionError` fields. It's appended
@@ -80,7 +85,7 @@ defmodule FlowAssertions.Define.Tabular do
 
     is likely to come from looking at this:
 
-         <picture here>
+    <img src="https://raw.githubusercontent.com/marick/flow_assertions/main/pics/assertion_error.png"/>
 
     ... and then tweaking the message and
     maybe the `code:`, `left:`, or `right:` fields. I only "solidify" the

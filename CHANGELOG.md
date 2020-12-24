@@ -4,13 +4,14 @@
 
 ### Additions
 
+* `Flowassertions.Define.Tabular` functions now have a stable enough API to use safely.
 * `FlowAssertions.Define.Tabular.nonflow_assertion_runners_for/1`
+* `FlowAssertions.Checkers.has_slice/1`
 
 ### Tweaks
 
 * `FlowAssertions.Define.BodyParts.adjust_assertion_error/2` now combines
   both `put` and `update!` behavior for replacements.
-* `Flowassertion.Define.Tabular` tests now have a stable enough API to use safely.
 
 ## 0.5.0
 
