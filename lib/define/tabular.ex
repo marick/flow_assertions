@@ -3,129 +3,129 @@ defmodule FlowAssertions.Define.Tabular do
   import FlowAssertions.AssertionA
   import ExUnit.Assertions
 
-  @moduledoc """
-  Generate "runners" used in tabular tests of assertions and
-  assertion-like functions. 
+@moduledoc """
+Generate "runners" used in tabular tests of assertions and
+assertion-like functions. 
 
-  A typical example:
+A typical example:
 
-        a = assertion_runners_for(&assert_equal/2)
-    
-        ["value", "value"] |> a.pass.()
-        ["value", "     "] |> a.fail.("Assertion with === failed")
-                           |> a.plus.(left: "value", right: "     ")
-
-
-  `assert_equal` takes two arguments, and those are passed to the runner
-  functions (`pass` and `fail`) in a list. 
-  If there's only a single argument, the enclosing list can be omitted:
-
-        a = assertion_runners_for(&assert_ok/1)
-
-        :ok     |> a.pass.()
-        :error  |> a.fail.(Messages.not_ok)
-
-  The functions created are, unless noted in the individual descriptions below,
-  these:
-
-  * **pass**: A runner that applies a function to arguments and checks for
-    success.
-    What, precisely, counts as success depends on the function under test. For
-    a flow assertion, success means returning its first argument.
-    
-    In the examples above, `pass` took only one argument (the value on
-    the left side of the `|>`). That's because the expected output of
-    `assert_ok` is trivial.
-    
-    
-    In other cases, you must give the expected output to `pass`. That looks
-    like this:
-
-        test "ok_content" do
-          a = content_runners_for(&ok_content/1)
-
-          {:ok, "content"}    |> a.pass.("content")
-          ...
-
-  * **fail**: takes an argument that is matched against an 
-    `AssertionError`. 
-
-     * A string, which must match the error message exactly. 
-     * A regular expression, like `~r/different lengths/`, which
-       can match part of the message.
-     * A keyword list, which is checked with `FlowAssertions.MapA.assert_fields/2`.
-       A typical use might be:
-
-            [ {1, 2}, 3 ] |> a.fail.(left: {1, 2}, right: 3)
-
-       Note that the left and right values are the true values from `ExUnit.AssertionError`, not string versions as from `inspect`.
-       If the error message is also to be tested, it should be given in keyword form:
-
-            a.fail.(left: "a", right: "bb", message: ~r/different lengths/)
-
-     Note that field names like `:left`, `:right`, and `:message` are
-     not part of the public API of `ExUnit.AssertionError`, so those
-     names could change in the future (though I doubt it). See the
-     [`AssertionError` source](https://github.com/elixir-lang/elixir/blob/v1.11.2/lib/ex_unit/lib/ex_unit/assertions.ex) for some other fields.
-
-  * **plus**: Provides an arguably nicer way to check both the `:message` and
-    other `AssertionError` fields. It's appended
-    to `fail` like this:
-
-         [datetime] |> a.fail.(Messages.wrong_struct_name(NaiveDateTime, Date))
-                    |> a.plus.(left: datetime)
-
-  * **inspect_**. This is a function to help with test-writing workflow. It
-    mainly exists because it's hard for me to get the display of error information right
-    without looking at it. That is, a check like this:
-    
-         [ [1, 2, 3],   [7, 1, 3] ]     |> a.fail.(~r/different elements/)
-                                        |> a.plus.(...)
+      a = assertion_runners_for(&assert_equal/2)
+  
+      ["value", "value"] |> a.pass.()
+      ["value", "     "] |> a.fail.("Assertion with === failed")
+                         |> a.plus.(left: "value", right: "     ")
 
 
-    is likely to come from looking at this:
+`assert_equal` takes two arguments, and those are passed to the runner
+functions (`pass` and `fail`) in a list. 
+If there's only a single argument, the enclosing list can be omitted:
 
-    <img src="https://raw.githubusercontent.com/marick/flow_assertions/main/pics/assertion_error.png"/>
+      a = assertion_runners_for(&assert_ok/1)
 
-    ... and then tweaking the message and
-    maybe the `code:`, `left:`, or `right:` fields. I only "solidify" the
-    final design in a test after everything looks right.
+      :ok     |> a.pass.()
+      :error  |> a.fail.(Messages.not_ok)
 
-    Normally, that would involve writing throwaway code, but `inspect_` avoids
-    that. Once I pick test inputs (the values before the `|>`),
-    I just write this:
-    
-         [ [1, 2, 3],   [7, 1, 3] ]     |> a.inspect_.(~r/a first message version/)
-                                             ^^^^^^^^
+The functions created are, unless noted in the individual descriptions below,
+these:
 
-    The trailing `_` indicates that `inspect_` is replacing a function that
-    takes one argument. Use `inspect` to replace a function with
-    zero arguments, like `pass`. 
+* **pass**: A runner that applies a function to arguments and checks for
+  success.
+  What, precisely, counts as success depends on the function under test. For
+  a flow assertion, success means returning its first argument.
+  
+  In the examples above, `pass` took only one argument (the value on
+  the left side of the `|>`). That's because the expected output of
+  `assert_ok` is trivial.
+  
+  
+  In other cases, you must give the expected output to `pass`. That looks
+  like this:
 
+      test "ok_content" do
+        a = content_runners_for(&ok_content/1)
 
-  ## Beware the typo
-
-  The most common mistake *I* make with this library is to make this typo:
-
-        ["", "a" ]  |> a.fail(~s/Checker `has_slice("a")` failed/)
-
-  There should be a period after `fail`. The result (as of Elixir 1.11) is
-
-        ** (ArgumentError) you attempted to apply a function on %{arity: 1,
-        fail: #Function<5.65840318/2 in FlowAssertions.Define.Tabular.make_
-        assertion_fail/1>, inspect: #Function<0.65840318/1 in FlowAssertion
+        {:ok, "content"}    |> a.pass.("content")
         ...
-        Assertions.Define.Tabular.start/2>}. Modules (the first argument of
-        apply) must always be an atom
+
+* **fail**: takes an argument that is matched against an 
+  `AssertionError`. 
+
+   * A string, which must match the error message exactly. 
+   * A regular expression, like `~r/different lengths/`, which
+     can match part of the message.
+   * A keyword list, which is checked with `FlowAssertions.MapA.assert_fields/2`.
+     A typical use might be:
+
+          [ {1, 2}, 3 ] |> a.fail.(left: {1, 2}, right: 3)
+
+     Note that the left and right values are the true values from `ExUnit.AssertionError`, not string versions as from `inspect`.
+     If the error message is also to be tested, it should be given in keyword form:
+
+          a.fail.(left: "a", right: "bb", message: ~r/different lengths/)
+
+   Warning: field names like `:left`, `:right`, and `:message` are
+   not part of the public API of `ExUnit.AssertionError`, so those
+   names could change in the future (though I doubt it). See the
+   [`AssertionError` source](https://github.com/elixir-lang/elixir/blob/v1.11.2/lib/ex_unit/lib/ex_unit/assertions.ex) for some other fields.
+
+* **plus**: Provides an arguably nicer way to check both the `:message` and
+  other `AssertionError` fields. It's appended
+  to `fail` like this:
+
+       [datetime] |> a.fail.(Messages.wrong_struct_name(NaiveDateTime, Date))
+                  |> a.plus.(left: datetime)
+
+* **inspect_**. This is a function to help with test-writing workflow. It
+  mainly exists because it's hard for me to get the display of error information right
+  without looking at it. That is, a check like this:
+  
+       [ [1, 2, 3],   [7, 1, 3] ]     |> a.fail.(~r/different elements/)
+                                      |> a.plus.(...)
 
 
-  ... which is perhaps not as clear as it should be. But now you're forewarned.
-  """
+  is likely to come from looking a message like the one at the end of this bullet list, 
+  then tweaking the message and
+  maybe the `code:`, `left:`, or `right:` output. I only "solidify" the
+  final design in a test after everything looks right.
+
+  Normally, producing such error output would mean writing throwaway code, but `inspect_` avoids
+  that. Once I pick test inputs (the values before the `|>`),
+  I just write this:
+  
+       [ [1, 2, 3],   [7, 1, 3] ]     |> a.inspect_.(~r/a first message version/)
+                                           ^^^^^^^^
+
+  The trailing `_` indicates that `inspect_` is replacing a function that
+  takes one argument. Use `inspect` to replace a function with
+  zero arguments, like `pass`. 
+
+
+<img src="https://raw.githubusercontent.com/marick/flow_assertions/main/pics/error2.png"/>
+
+
+## Beware the typo
+
+The most common mistake *I* make with this library is this kind of typo:
+
+      ["", "a" ]  |> a.fail(~s/Checker `has_slice("a")` failed/)
+
+There should be a period after `fail`. The result (as of Elixir 1.11) is
+
+      ** (ArgumentError) you attempted to apply a function on %{arity: 1,
+      fail: #Function<5.65840318/2 in FlowAssertions.Define.Tabular.make_
+      assertion_fail/1>, inspect: #Function<0.65840318/1 in FlowAssertion
+      ...
+      Assertions.Define.Tabular.start/2>}. Modules (the first argument of
+      apply) must always be an atom
+
+
+... which is perhaps not as clear as it should be. But now you're forewarned.
+"""
 
   # ----------------------------------------------------------------------------
   
   @doc """
-  Create checking functions for flow-style assertions.
+  Create runners for flow-style assertions.
 
       a = assertion_runners_for(&assert_empty/1)
 
@@ -151,7 +151,7 @@ defmodule FlowAssertions.Define.Tabular do
         :ok |> a.fail.(Messages.not_ok_tuple)
 
   ... will check that the `:left` value of the `AssertionError` is `:ok`. (That is,
-  the argument given to `ok_content`). There is no need to add a
+  it is the argument given to `ok_content`). There is no need to add a
   `|> plus.(left: :ok)`. 
 
   Note: the original function (the `asserter` or `extractor`) must take only
@@ -169,18 +169,18 @@ defmodule FlowAssertions.Define.Tabular do
 
   # ----------------------------------------------------------------------------
   @doc """
-  Create checking functions for regular Elixir assertions.
+  Create runners for regular Elixir assertions.
 
   `asserter` should be a function that raises an `AssertionError` or 
-  returns an unspecified value. `pass`, then, always succeeds if it's
-  given a value.
+  returns an unspecified value. `pass`, then, always succeeds when there's no
+  error.
   """
   def nonflow_assertion_runners_for(asserter),
     do: runners(:return_irrelevant, asserter)
 
   # ----------------------------------------------------------------------------
   @doc """
-  Create checking functions for functions that either return part of a compound
+  Create runners for functions that either return part of a compound
   value or raise an `AssertionError`. 
 
   Consider `FlowAssertions.MiscA.ok_content`:
@@ -199,11 +199,11 @@ defmodule FlowAssertions.Define.Tabular do
   # ----------------------------------------------------------------------------
 
   @doc """
-  Create checking functions for functions like those in `FlowAssertions.Checkers`. 
+  Create runners for functions like those in `FlowAssertions.Checkers`. 
 
         a = checker_runners_for(&in_any_order/1)]
-          # actual   checked against
 
+          # actual   checked against
         [ [1, 2, 3],   [1, 2, 3] ]     |> a.pass.()
         [ [1, 2, 3],   [7, 1, 3] ]     |> a.fail.(~r/different elements/)
 

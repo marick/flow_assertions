@@ -135,7 +135,7 @@ defmodule FlowAssertions.Define.BodyParts do
   Run a function, perhaps generating an assertion error. If so, use the
   keyword arguments to replace or update values in the error. 
 
-  Replacement: 
+  **Replacement:**
 
       adjust_assertion_error(fn ->
         MiscA.assert_good_enough(Map.get(kvs, key), expected)
@@ -147,7 +147,7 @@ defmodule FlowAssertions.Define.BodyParts do
   making the reporting machinery report the code of the assertion the user called,
   rather than the nested assertion that generated the error.
 
-  Update: 
+  **Update:**
 
       adjust_assertion_error(fn ->
         MiscA.assert_good_enough(Map.get(kvs, key), expected)
