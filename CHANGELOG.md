@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.6.0 (pending)
+## 0.6.0
 
 ### Additions
 
