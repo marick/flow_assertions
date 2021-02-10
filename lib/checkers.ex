@@ -54,7 +54,7 @@ defmodule FlowAssertions.Checkers do
 
   defp alphabetical_enums(actual, expected),
     do: [left: alphabetical(actual), right: alphabetical(expected)]
-  defp alphabetical(xs), do: Enum.sort_by(xs, &to_string/1)
+  defp alphabetical(xs), do: Enum.sort_by(xs, &inspect/1)
 
   @doc """
   Checks whether a String or List contains another.

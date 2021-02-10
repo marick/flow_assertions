@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.1
+
+### Fixes
+
+* `FlowAssertions.Checkers.in_any_order` failed to produce a correct
+  assertion message if a mismatching Enumerable contained a value that
+  didn't implement `String.Chars`.
+
 ## 0.6.0
 
 ### Additions

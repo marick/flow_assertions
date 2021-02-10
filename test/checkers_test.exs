@@ -28,8 +28,22 @@
       [ [2, 1, 3],   [7, 1, 3] ]     |> a.fail.(left: [1, 2, 3], right: [1, 3, 7])
       [ [3, 2, 3],   [1, 2]    ]     |> a.fail.(left: [2, 3, 3], right: [1, 2])
     end
-  end
 
+    defmodule Unsortable do
+      defstruct [:a]
+    end
+
+    test "`in-any-order` fails nicely when the argument is not sortable" do 
+      unsortable = %Unsortable{a: 1}
+
+      assertion_fails("The two collections have different elements",
+        [left:  [%FlowAssertions.CheckersTest.Unsortable{a: 1}, 1],
+         right: [%FlowAssertions.CheckersTest.Unsortable{a: 1}, 2]],
+        fn -> 
+          assert_good_enough([1, unsortable], in_any_order([2, unsortable]))
+        end)
+    end
+  end
 
   describe "has_slice" do
     setup do: [runners: checker_runners_for(&has_slice/1)]
