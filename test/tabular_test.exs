@@ -1,52 +1,125 @@
-defmodule FlowAssertions.Define.TabularTests do
+defmodule FlowAssertions.TabularTests do
   use FlowAssertions.Case
-  import FlowAssertions.Define.{Tabular,BodyParts}
+  alias FlowAssertions.Tabular
 
-  describe "fail" do
-    test "variant argument lists" do 
-      a = assertion_runners_for(&assert_equal/2)
-      msg = "Assertion with === failed"
-      
-      ["a", "b"] |> a.fail.(msg)
-      ["a", "b"] |> a.fail.(left: "a", right: "b")
-      ["a", "b"] |> a.fail.(message: msg, left: "a", right: "b")
-
-      ["a", "b"] |> a.fail.(msg)
-                 |> a.plus.(left: "a", right: "b")
-
-      # Note that left and right are not string versions
-      [ ["a", "a"], "b"] |> a.fail.(message:      msg, left: ["a", "a"])
-      # The message is always compared specially:
-      [ ["a", "a"], "b"] |> a.fail.(message: ~r/with/, left: ["a", "a"])
+  defp case_clause(x) do 
+    case x do
+      1 -> "one passed in"
+      2 -> "two passed in"
+    end
+  end
+  
+  defp case_clause(x, y) do 
+    case [x, y] do
+      [1, 1] -> "one passed in"
+      [2, 2] -> "two passed in"
     end
   end
 
-
-  describe "left_is_actual" do
-    def bad_one_arg(_   ), do: elaborate_flunk("message", left: "weird")
-    def bad_two_arg(_, _), do: elaborate_flunk("message", left: "weird")
-
-    def fails(f) do 
-      assertion_fails("Field `:left` has the wrong value",
-        [left: "weird", right: :error],
-        f)
-    end
+  describe "creation of `expect`" do 
+    test "single argument function" do
+      expect = Tabular.expect(&case_clause/1)
     
-    test "one argument asserter" do
-      x = assertion_runners_for(&assert_equal/2) |> left_is_actual
-      [1, 2] |> x.fail.("Assertion with === failed")
-      
+      1 |> expect.("one passed in")
 
-      
-      a = assertion_runners_for(&bad_one_arg/1) |> left_is_actual
+      assertion_fails("Assertion with === failed",
+        [left: "two passed in",
+         right: "one passed in"],
+        fn -> 
+          2 |> expect.("one passed in")
+        end)
 
-      fails(fn -> :error |> a.fail.("message") end)
+      assertion_fails(~r/CaseClauseError/,
+        [left: %CaseClauseError{term: 3}],
+        fn -> 
+          expect.(3, "unused")
+        end)
     end
 
-    test "two argument asserter" do
-      a = assertion_runners_for(&bad_two_arg/2) |> left_is_actual
+    test "n-argument function" do
+      expect = Tabular.expect(&case_clause/2)
+    
+      [1, 1] |> expect.("one passed in")
 
-      fails(fn -> [:error, :other] |> a.fail.("message") end)
+      assertion_fails("Assertion with === failed",
+        [left: "two passed in",
+         right: "one passed in"],
+        fn -> 
+          [2, 2] |> expect.("one passed in")
+        end)
+    end
+
+    test "a second argument provides the checker" do
+      expect = Tabular.expect(&case_clause/2, &assert_good_enough/2)
+    
+      [1, 1] |> expect.(~r/one passed/)
+      
+      assertion_fails("Regular expression didn't match",
+        [left: "two passed in",
+         right: ~r/one/],
+        fn -> 
+          [2, 2] |> expect.(~r/one/)
+        end)
+    end
+  end
+
+  describe "raises" do
+    test "the zero-argument case" do
+      raises = Tabular.raises(&case_clause/1)
+
+      3 |> raises.([]) |> assert_equal(%CaseClauseError{term: 3})
+
+      assertion_fails("An exception was expected, but a value was returned",
+        [left: "two passed in"],
+        fn ->
+          2 |> raises.([])
+        end)
+    end
+
+    test "one argument" do
+      raises = Tabular.raises(&case_clause/2)
+
+      [3, 3] |> raises.(CaseClauseError)
+
+      assertion_fails("An unexpected exception was raised",
+        [left: CaseClauseError, right: RuntimeError],
+        fn -> 
+          [3, 3] |> raises.(RuntimeError)
+        end)
+
+      assertion_fails("The exception message was incorrect",
+        [left: "no case clause matching: [3, 3]", right: "foo"],
+        fn -> 
+          [3, 3] |> raises.("foo")
+        end)
+
+      # `raises` allows regexps
+      [3, 3] |> raises.(~r/no case/)
+      
+      assertion_fails("The exception message was incorrect",
+        [left: "no case clause matching: [3, 3]", right: ~r/cccc/],
+        fn -> 
+          [3, 3] |> raises.(~r/cccc/)
+        end)
+    end
+
+
+    test "N arguments" do
+      raises = Tabular.raises(&case_clause/2)
+
+      [3, 3] |> raises.([CaseClauseError, ~R/no case clause/])
+
+      assertion_fails("An unexpected exception was raised",
+        [left: CaseClauseError, right: RuntimeError],
+        fn -> 
+          [3, 3] |> raises.([~r/no case clause/, RuntimeError])
+        end)
+
+      assertion_fails("The exception message was incorrect",
+        [left: "no case clause matching: [3, 3]", right: "foo"],
+        fn -> 
+          [3, 3] |> raises.([CaseClauseError, "foo"])
+        end)
     end
   end
 end
