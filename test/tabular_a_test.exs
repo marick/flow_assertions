@@ -1,6 +1,6 @@
-defmodule FlowAssertions.TabularTests do
+defmodule FlowAssertions.TabularATests do
   use FlowAssertions.Case
-  alias FlowAssertions.Tabular
+  alias FlowAssertions.TabularA
 
   defp case_clause(x) do 
     case x do
@@ -18,7 +18,7 @@ defmodule FlowAssertions.TabularTests do
 
   describe "creation of `expect`" do 
     test "single argument function" do
-      expect = Tabular.expect(&case_clause/1)
+      expect = TabularA.expect(&case_clause/1)
     
       1 |> expect.("one passed in")
 
@@ -37,7 +37,7 @@ defmodule FlowAssertions.TabularTests do
     end
 
     test "n-argument function" do
-      expect = Tabular.expect(&case_clause/2)
+      expect = TabularA.expect(&case_clause/2)
     
       [1, 1] |> expect.("one passed in")
 
@@ -50,7 +50,7 @@ defmodule FlowAssertions.TabularTests do
     end
 
     test "a second argument provides the checker" do
-      expect = Tabular.expect(&case_clause/2, &assert_good_enough/2)
+      expect = TabularA.expect(&case_clause/2, &assert_good_enough/2)
     
       [1, 1] |> expect.(~r/one passed/)
       
@@ -65,7 +65,7 @@ defmodule FlowAssertions.TabularTests do
 
   describe "raises" do
     test "the zero-argument case" do
-      raises = Tabular.raises(&case_clause/1)
+      raises = TabularA.raises(&case_clause/1)
 
       3 |> raises.([]) |> assert_equal(%CaseClauseError{term: 3})
 
@@ -77,7 +77,7 @@ defmodule FlowAssertions.TabularTests do
     end
 
     test "one argument" do
-      raises = Tabular.raises(&case_clause/2)
+      raises = TabularA.raises(&case_clause/2)
 
       [3, 3] |> raises.(CaseClauseError)
 
@@ -105,7 +105,7 @@ defmodule FlowAssertions.TabularTests do
 
 
     test "N arguments" do
-      raises = Tabular.raises(&case_clause/2)
+      raises = TabularA.raises(&case_clause/2)
 
       [3, 3] |> raises.([CaseClauseError, ~R/no case clause/])
 
@@ -125,7 +125,7 @@ defmodule FlowAssertions.TabularTests do
 
   describe "a combination" do
     test "creating both `expect` and `raises` at the same time" do
-      {expect, raises} =  Tabular.runners(&case_clause/2, &assert_good_enough/2)
+      {expect, raises} =  TabularA.runners(&case_clause/2, &assert_good_enough/2)
 
       assertion_fails("Regular expression didn't match",
         [left: "two passed in",
