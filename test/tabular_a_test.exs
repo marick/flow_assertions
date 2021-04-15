@@ -61,6 +61,19 @@ defmodule FlowAssertions.TabularATests do
           [2, 2] |> expect.(~r/one/)
         end)
     end
+
+    test "second argument is an arity-1 function" do
+      pass = TabularA.expect(&case_clause/1, &(assert &1 == "one passed in"))
+
+      1 |> pass.()
+
+      assertion_fails("Assertion with == failed",
+        [left: "two passed in",
+         right: "one passed in"],
+        fn -> 
+          2 |> pass.()
+        end)
+    end
   end
 
   describe "raises" do
@@ -108,6 +121,7 @@ defmodule FlowAssertions.TabularATests do
       raises = TabularA.raises(&case_clause/2)
 
       [3, 3] |> raises.([CaseClauseError, ~R/no case clause/])
+             |> assert_field(term: [3, 3])
 
       assertion_fails("An unexpected exception was raised",
         [left: CaseClauseError, right: RuntimeError],
@@ -125,7 +139,7 @@ defmodule FlowAssertions.TabularATests do
 
   describe "a combination" do
     test "creating both `expect` and `raises` at the same time" do
-      {expect, raises} =  TabularA.runners(&case_clause/2, &assert_good_enough/2)
+      {expect, raises} = TabularA.runners(&case_clause/2, &assert_good_enough/2)
 
       assertion_fails("Regular expression didn't match",
         [left: "two passed in",
