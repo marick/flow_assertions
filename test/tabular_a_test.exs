@@ -18,7 +18,7 @@ defmodule FlowAssertions.TabularATests do
 
   describe "creation of `expect`" do 
     test "single argument function" do
-      expect = TabularA.expect(&case_clause/1)
+      expect = TabularA.run_and_assert(&case_clause/1)
     
       1 |> expect.("one passed in")
 
@@ -37,7 +37,7 @@ defmodule FlowAssertions.TabularATests do
     end
 
     test "n-argument function" do
-      expect = TabularA.expect(&case_clause/2)
+      expect = TabularA.run_and_assert(&case_clause/2)
     
       [1, 1] |> expect.("one passed in")
 
@@ -50,7 +50,7 @@ defmodule FlowAssertions.TabularATests do
     end
 
     test "a second argument provides the checker" do
-      expect = TabularA.expect(&case_clause/2, &assert_good_enough/2)
+      expect = TabularA.run_and_assert(&case_clause/2, &assert_good_enough/2)
     
       [1, 1] |> expect.(~r/one passed/)
       
@@ -63,7 +63,7 @@ defmodule FlowAssertions.TabularATests do
     end
 
     test "second argument is an arity-1 function" do
-      pass = TabularA.expect(&case_clause/1, &(assert &1 == "one passed in"))
+      pass = TabularA.run_and_assert(&case_clause/1, &(assert &1 == "one passed in"))
 
       1 |> pass.()
 
@@ -78,7 +78,7 @@ defmodule FlowAssertions.TabularATests do
 
   describe "raises" do
     test "the zero-argument case" do
-      raises = TabularA.raises(&case_clause/1)
+      raises = TabularA.run_for_exception(&case_clause/1)
 
       3 |> raises.([]) |> assert_equal(%CaseClauseError{term: 3})
 
@@ -90,7 +90,7 @@ defmodule FlowAssertions.TabularATests do
     end
 
     test "one argument" do
-      raises = TabularA.raises(&case_clause/2)
+      raises = TabularA.run_for_exception(&case_clause/2)
 
       [3, 3] |> raises.(CaseClauseError)
 
@@ -118,7 +118,7 @@ defmodule FlowAssertions.TabularATests do
 
 
     test "N arguments" do
-      raises = TabularA.raises(&case_clause/2)
+      raises = TabularA.run_for_exception(&case_clause/2)
 
       [3, 3] |> raises.([CaseClauseError, ~R/no case clause/])
              |> assert_field(term: [3, 3])

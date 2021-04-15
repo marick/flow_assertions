@@ -5,7 +5,7 @@ defmodule FlowAssertions.TabularA do
   @moduledoc """
   Builders that create functions tailored to tabular tests.
 
-  Here's a example of some tabular tess.
+  Here's a example of some tabular tests:
 
       [insert:  :a                  ] |> expect.([een(a: Examples)])
       [insert: [:a, :b      ]       ] |> expect.([een(a: Examples), een(b: Examples)])
@@ -16,14 +16,14 @@ defmodule FlowAssertions.TabularA do
       [insert: een(a: Examples)     ] |> expect.([een(a: Examples)])
 
 
-  The `expect` function above was created with 
+  The `expect` function above was created with:
 
-      expect = TabularA.expect(
+      expect = TabularA.run_and_assert(
         &(Pnode.Previously.parse(&1) |> Pnode.EENable.eens))
 
-  There is also a function that puts assertions about exceptios in a tabular style:
+  There is also a function that allows assertions about exceptions in a tabular style:
 
-      raises = TabularA.raises(&case_clause/2)
+      raises = TabularA.run_for_exception(&case_clause/2)
       [3, 3] |> raises.(CaseClauseError)
 
   You can find similar builders in `FlowAssertions.Define.Tabular`. They
@@ -31,7 +31,7 @@ defmodule FlowAssertions.TabularA do
 
   ## Beware the typo
 
-  The most common mistake *I* make with this library is this kind of typo:
+  I make this kind of typo a lot:
 
       [2, 2] |> expect("The sum is 4")
 
@@ -46,13 +46,13 @@ defmodule FlowAssertions.TabularA do
   The first argument is a function that generates a value. It may just
   be the function under test:
 
-      expect = TabularA.expect(&Enum.take/2)
+      expect = TabularA.run_and_assert(&Enum.take/2)
 
-  Quite often, however, it's a function that does some calculation
-  common to all the table rows, then calls the function under
-  test (in the following, `Pnode.EENable.eens`):
+  Quite often, however, it's a function that does some extra work to
+  make the table rows more concise. For example, the following
+  extracts the part of the result that needs to be checked:
 
-      expect = TabularA.expect(
+      expect = TabularA.run_and_assert(
         &(Pnode.Previously.parse(&1) |> Pnode.EENable.eens))
 
   Because the above function has a single argument, `expect` is called like
@@ -68,16 +68,16 @@ defmodule FlowAssertions.TabularA do
   By default, correctness is checked with `===`. You can override that
   by passing in a second function:
 
-      expect = TabularA.expect(
+      expect = TabularA.run_and_assert(
         &Common.FromPairs.extract_een_values/1,
         &assert_good_enough(&1, in_any_order(&2)))
 
   In the above case, the second argument is a function that takes both an
-  actual and expected value. You can instead provide a function that only
+  actual and an expected value. You can instead provide a function that only
   takes the actual value. In such a case, I typically call the resulting
   function `pass`:
 
-      pass = TabularA.expect(
+      pass = TabularA.run_and_assert(
         &case_clause/1,
         &(assert &1 == "one passed in"))
 
@@ -87,7 +87,7 @@ defmodule FlowAssertions.TabularA do
   Without an assertion, `pass` can never fail.
   """
   
-  def expect(result_producer, asserter \\ &MiscA.assert_equal/2) do
+  def run_and_assert(result_producer, asserter \\ &MiscA.assert_equal/2) do
     runner = run(result_producer)
 
     step1 = fn input ->
@@ -112,7 +112,7 @@ defmodule FlowAssertions.TabularA do
   end
 
   @doc """
-  A more concise version of `assert_raise`, suitable for tabular tests.
+  A more concise version of `ExUnit.Assertions.assert_raise/3`, suitable for tabular tests.
 
   A typical use looks like this:
 
@@ -120,9 +120,9 @@ defmodule FlowAssertions.TabularA do
 
   Creation looks like this:
 
-        raises = TabularA.raises(&function_under_test/1)
+        raises = TabularA.run_for_exception(&function_under_test/1)
 
-  As with `FlowAssertions.TabularA.expect/2`, multiple arguments are
+  As with `FlowAssertions.TabularA.run_and_assert/2`, multiple arguments are
   passed in a list:
 
       [-1, 3] |> raises.(~r/no negative values/)
@@ -146,7 +146,7 @@ defmodule FlowAssertions.TabularA do
       [3, 3] |> raises.([CaseClauseError, ~R/no case clause/])
              |> assert_field(term: [3, 3])
   """
-  def raises(result_producer) do
+  def run_for_exception(result_producer) do
     runner = run(result_producer)
     fn
       input, check when is_list(check) -> run_for_raise(runner, input, check)
@@ -155,14 +155,14 @@ defmodule FlowAssertions.TabularA do
   end
 
   @doc """
-  Return the results of both `expect` and `raises`.
+  Return the results of both `run_and_assert` and `run_for_exception`.
 
       {expect, raises} = TabularA.runners(&case_clause/2)
 
   The optional second argument is passed to `expect`.
   """
   def runners(result_producer, asserter \\ &MiscA.assert_equal/2) do
-    {expect(result_producer, asserter), raises(result_producer)}
+    {run_and_assert(result_producer, asserter), run_for_exception(result_producer)}
   end
 
   # ----------------------------------------------------------------------------
