@@ -2,7 +2,7 @@ defmodule FlowAssertions.MixProject do
   use Mix.Project
 
   @github "https://github.com/marick/flow_assertions"
-  @version "0.6.1"
+  @version "0.7.0"
 
   def project do
     [
