@@ -122,4 +122,23 @@ defmodule FlowAssertions.TabularTests do
         end)
     end
   end
+
+  describe "a combination" do
+    test "creating both `expect` and `raises` at the same time" do
+      {expect, raises} =  Tabular.runners(&case_clause/2, &assert_good_enough/2)
+
+      assertion_fails("Regular expression didn't match",
+        [left: "two passed in",
+         right: ~r/one/],
+        fn -> 
+          [2, 2] |> expect.(~r/one/)
+        end)
+
+      assertion_fails("An unexpected exception was raised",
+        [left: CaseClauseError, right: RuntimeError],
+        fn -> 
+          [3, 3] |> raises.(RuntimeError)
+        end)
+    end
+  end
 end

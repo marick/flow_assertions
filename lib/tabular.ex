@@ -34,6 +34,11 @@ defmodule FlowAssertions.Tabular do
     end
   end
 
+  def runners(result_producer, asserter \\ &MiscA.assert_equal/2) do
+    {expect(result_producer, asserter), raises(result_producer)}
+  end
+
+  # ----------------------------------------------------------------------------
 
   defp run_for_raise(runner, input, checks) do
     try do
