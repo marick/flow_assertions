@@ -61,9 +61,12 @@ defmodule FlowAssertions.TabularA do
       :a |> expect.([een(a: Examples)])
 
   If it had had two or more arguments, those arguments would have had to be passed
-  in a list:
+  in a list or tuple:
 
       [:a, :b] |> expect.([een(:a, b: Examples)])
+      {:a, :b} |> expect.([een(:a, b: Examples)])
+
+  (I use tuples when some of the arguments are lists. It's easier to read.)
 
   By default, correctness is checked with `===`. You can override that
   by passing in a second function:
@@ -93,7 +96,10 @@ defmodule FlowAssertions.TabularA do
     step1 = fn input ->
       try do
         runner.(input)
-      rescue ex ->
+      rescue
+        ex in [ExUnit.AssertionError] ->
+          reraise ex, __STACKTRACE__
+        ex ->
           name = ex.__struct__
         elaborate_flunk("Unexpected exception #{name}", left: ex)
       end
@@ -171,10 +177,28 @@ defmodule FlowAssertions.TabularA do
     case arity(result_producer) do
       1 -> 
         fn arg -> apply result_producer, [arg] end
-      _n ->
-        fn args -> apply result_producer, args end
+      n ->
+        fn args -> apply_multiple(result_producer, args, n) end
     end
   end
+
+  defp apply_multiple(result_producer, args, n) when is_list(args) do
+    elaborate_assert(
+      length(args) == n,
+      arity_description(n, length(args)),
+      left: args)
+    apply result_producer, args
+  end
+  
+  defp apply_multiple(result_producer, args, n) when is_tuple(args), 
+    do: apply_multiple(result_producer, Tuple.to_list(args), n)
+
+  defp apply_multiple(_result_producer, args, n) do
+    elaborate_flunk(arity_description(n, 1), left: args)
+  end
+
+  defp arity_description(n, not_n),
+    do: "The result producer takes #{n} arguments, not #{not_n}"
 
   defp arity(function), do: Function.info(function) |> Keyword.get(:arity)
 

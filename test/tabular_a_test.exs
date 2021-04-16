@@ -36,10 +36,19 @@ defmodule FlowAssertions.TabularATests do
         end)
     end
 
+    test "single argument function that takes a list or tuple" do
+      expect = TabularA.run_and_assert(&List.last/1)
+      [1, 2] |> expect.(2)
+
+      expect = TabularA.run_and_assert(&Tuple.to_list/1)
+      {1, 2} |> expect.([1, 2])
+    end
+
     test "n-argument function" do
       expect = TabularA.run_and_assert(&case_clause/2)
     
       [1, 1] |> expect.("one passed in")
+      {1, 1} |> expect.("one passed in")  # can also use a tuple
 
       assertion_fails("Assertion with === failed",
         [left: "two passed in",
@@ -47,6 +56,23 @@ defmodule FlowAssertions.TabularATests do
         fn -> 
           [2, 2] |> expect.("one passed in")
         end)
+    end
+
+    test "n-argument function test error cases" do
+      expect = TabularA.run_and_assert(&Enum.take/2)
+
+      assertion_fails("The result producer takes 2 arguments, not 1",
+        [left: "solo"],
+        fn ->
+          "solo" |> expect.("unused")
+        end)
+
+      assertion_fails("The result producer takes 2 arguments, not 3",
+        [left: [1, 2, 3]],
+        fn ->
+          [1, 2, 3] |> expect.("unused")
+        end)
+
     end
 
     test "a second argument provides the checker" do
