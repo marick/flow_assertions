@@ -1,6 +1,6 @@
 defmodule FlowAssertions.Checkers do
   alias FlowAssertions.Define.Defchecker.Failure
-  import FlowAssertions.Define.Defchecker
+  import FlowAssertions.Define.{Defchecker,BodyParts}
   alias FlowAssertions.Messages
 
   @moduledoc """
@@ -40,8 +40,17 @@ defmodule FlowAssertions.Checkers do
         end
       end
 
+      assert_enumerable = fn value, identifier -> 
+        elaborate_assert(Enumerable.impl_for(value),
+          Messages.not_enumerable(identifier),
+          [left: actual, right: expected])
+      end
+
       id = fn x -> x end
       unordered = &(Enum.group_by(&1, id))
+
+      assert_enumerable.(actual, "left")
+      assert_enumerable.(expected, "right")
 
       assert.(length(actual) == length(expected),
         Messages.different_length_collections)

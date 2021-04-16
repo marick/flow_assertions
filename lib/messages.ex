@@ -56,6 +56,8 @@ defmodule FlowAssertions.Messages do
   def field_wrongly_present(field), do: "Field `#{inspect field}` should not be present."
 
   def not_enumerable, do: "Expected an `Enumerable`"
+  def not_enumerable(which),
+    do: "The #{which} value is not an Enumerable"
 
   def different_length_collections, do: "The two collections have different lengths"
   def different_elements_collections, do: "The two collections have different elements"

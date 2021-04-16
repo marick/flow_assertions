@@ -29,6 +29,21 @@
       [ [3, 2, 3],   [1, 2]    ]     |> a.fail.(left: [2, 3, 3], right: [1, 2])
     end
 
+    test "`in-any-order` fails nicely when values are not enumerable" do
+      assertion_fails("The left value is not an Enumerable",
+        [left:  "string", right: [1, 2]],
+        fn -> 
+          assert_good_enough("string", in_any_order([1, 2]))
+        end)
+      
+      assertion_fails("The right value is not an Enumerable",
+        [left:  [1, 2], right: 1],
+        fn -> 
+          assert_good_enough([1, 2], in_any_order(1))
+        end)
+
+    end
+
     defmodule Unsortable do
       defstruct [:a]
     end
@@ -43,6 +58,7 @@
           assert_good_enough([1, unsortable], in_any_order([2, unsortable]))
         end)
     end
+
   end
 
   describe "has_slice" do
