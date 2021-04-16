@@ -99,7 +99,9 @@ In the output, `left` will refer to some value extracted from
 
 ## Related code
 
-*TBD*
+* [assertions](https://hexdocs.pm/assertions/Assertions.html) is another package of common assertions. 
+* [ecto_flow_assertions](https://hexdocs.pm/ecto_flow_assertions/FlowAssertions.Ecto.html) extends this library with Ecto-specific assertions.
+* [phoenix_integration](https://hexdocs.pm/phoenix_integration/PhoenixIntegration.html) uses flow-style assertions for integration testing.
 
 ## Change log
 

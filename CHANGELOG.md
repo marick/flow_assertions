@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.0
+* `FlowAssertions.TabularA` for tabular tests that are more broadly useful than 
+  `Flowassertions.Define.Tabular`, which is for testing assertion definitions.
+* Friendly error messages when arguments to `FlowAssertions.Checkers.in_any_order/1`
+  are not `Enumerable`.
+
 ## 0.6.1
 
 ### Fixes
