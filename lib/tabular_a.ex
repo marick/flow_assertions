@@ -27,6 +27,8 @@ defmodule FlowAssertions.TabularA do
       raises = TabularA.run_for_exception(&case_clause/2)
       [3, 3] |> raises.(CaseClauseError)
 
+  For more on this style, see ["Tabular tests in Elixir"](https://www.crustofcode.com/two-formats-for-tabular-elixir-tests/).
+
   ## Related code
 
   You can find similar builders in
@@ -107,7 +109,8 @@ defmodule FlowAssertions.TabularA do
           reraise ex, __STACKTRACE__
         ex ->
           name = ex.__struct__
-        elaborate_flunk("Unexpected exception #{name}", left: ex)
+          msg = Exception.message(ex)
+          elaborate_flunk("unexpected #{inspect name}: #{msg}", left: ex)
       end
     end
 
