@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.1
+
+* Slightly better reporting for exceptions raised unexpectedly in
+  `FlowAssertions.TabularA.run_and_assert/2`. 
+
 ## 0.7.0
 * `FlowAssertions.TabularA` for tabular tests that are more broadly useful than 
   `Flowassertions.Define.Tabular`, which is for testing assertion definitions.

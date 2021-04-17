@@ -2,14 +2,14 @@ defmodule FlowAssertions.MixProject do
   use Mix.Project
 
   @github "https://github.com/marick/flow_assertions"
-  @version "0.7.0"
+  @version "0.7.1"
 
   def project do
     [
 
       description: """
       Assertions tailored for use in pipelines. Common assertions
-      extracted for easy reuse.
+      extracted for easy reuse. Tabular tests.
       """,
       
       app: :flow_assertions,
