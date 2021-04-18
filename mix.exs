@@ -25,6 +25,30 @@ defmodule FlowAssertions.MixProject do
       docs: [
         main: "FlowAssertions",
         extras: ["CHANGELOG.md"],
+        nest_modules_by_prefix: [FlowAssertions.Define],
+        groups_for_modules: [
+          "Common Assertions": [
+            FlowAssertions.EnumA,
+            FlowAssertions.MapA,
+            FlowAssertions.MiscA,
+            FlowAssertions.StructA,
+          ],
+          "Other Assertions": [
+            FlowAssertions.AssertionA,
+            FlowAssertions.NoValueA,
+          ],
+          "Helpers": [
+            FlowAssertions.Checkers,
+            FlowAssertions.TabularA,
+          ],
+          "Defining Assertions": [
+            FlowAssertions.Define,
+            FlowAssertions.Define.BodyParts,
+            FlowAssertions.Define.Defchain,
+            FlowAssertions.Define.Defchecker,
+            FlowAssertions.Define.Tabular,
+          ]
+        ]
       ],
 
       package: [
